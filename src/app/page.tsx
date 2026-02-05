@@ -1,6 +1,17 @@
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  let connectionStatus = "Not tested";
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("test").select("*").limit(1);
+    connectionStatus = error
+      ? `Error: ${error.message}`
+      : "Connected successfully";
+  } catch (err: unknown) {
+    connectionStatus = `Exception: ${err instanceof Error ? err.message : String(err)}`;
+  }
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
@@ -13,6 +24,9 @@ export default function Home() {
           priority
         />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+          <div className={`rounded-md px-4 py-2 text-sm font-mono ${connectionStatus.startsWith("Connected") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+            Supabase: {connectionStatus}
+          </div>
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
             To get started, edit the page.tsx file.
           </h1>

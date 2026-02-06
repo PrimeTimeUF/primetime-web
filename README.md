@@ -16,9 +16,20 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Go to the [Supabase dashboard](https://app.supabase.com), navigate to your project, and open **Settings > API**.
+2. Copy the following values:
+   - **Project URL**
+   - **Anon key** (under `anon` / `public`)
+   - **Service Role key** (under `service_role` / `secret` — keep this private)
+3. Create a `.env.local` file in the project root (do **not** commit this file):
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your-project-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   ```
+4. Run `npm run dev` as normal. The app will connect to the shared Supabase project.
 
 ## Learn More
 

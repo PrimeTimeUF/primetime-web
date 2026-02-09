@@ -2,64 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button, Input } from "@/components";
 
 type Role = "student" | "teacher";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [role, setRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
-    setApiError("");
 
-    try {
-      // Call login API
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+    // TODO: Supabase auth integration
+    console.log("Login attempt:", { email, role, rememberMe });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setApiError(data.error || "Failed to log in");
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if the user's role matches the selected role
-      if (data.user.role !== role) {
-        setApiError(`This account is registered as a ${data.user.role}. Please select the correct role.`);
-        setIsLoading(false);
-        return;
-      }
-
-      // Redirect to appropriate dashboard based on role
-      if (data.user.role === "teacher") {
-        router.push("/teacher");
-      } else {
-        router.push("/student");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setApiError("An unexpected error occurred. Please try again.");
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   }
 
   return (
@@ -77,13 +38,6 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* API Error Message */}
-          {apiError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
-              {apiError}
-            </div>
-          )}
-
           {/* Email */}
           <Input
             label="Email"

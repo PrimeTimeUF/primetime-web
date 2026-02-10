@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-test("home page loads successfully", async ({ page }) => {
+test("home page redirects to login", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/PrimeTime/i);
-  await expect(page.getByText("Primary Button")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
 });

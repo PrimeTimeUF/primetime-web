@@ -1,9 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import Home from "./page";
+import { redirect } from "next/navigation";
+
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(),
+}));
 
 describe("Home page", () => {
-  it("renders without crashing", () => {
+  it("redirects to /login", () => {
     render(<Home />);
-    expect(screen.getByText("Primary Button")).toBeInTheDocument();
+    expect(redirect).toHaveBeenCalledWith("/login");
   });
 });

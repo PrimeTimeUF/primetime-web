@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Button, Card, CreateCourseModal } from "@/components";
 
 interface Course {
@@ -122,34 +123,36 @@ export default function TeacherDashboardPage() {
       {!isLoading && courses.length > 0 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => (
-            <Card key={course.id} className="flex flex-col">
-              <Card.Header>
-                <Card.Title>{course.title}</Card.Title>
-                {course.description && (
-                  <Card.Description>{course.description}</Card.Description>
-                )}
-              </Card.Header>
-              <Card.Content className="mt-auto space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Course Code</span>
-                  <span className="font-medium text-gray-900">
-                    {course.course_code}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Semester</span>
-                  <span className="font-medium text-gray-900">
-                    {course.semester}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Invitation Code</span>
-                  <span className="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs font-medium text-gray-900">
-                    {course.invitation_code}
-                  </span>
-                </div>
-              </Card.Content>
-            </Card>
+            <Link key={course.id} href={`/teacher/courses/${course.id}`}>
+              <Card className="flex flex-col hover:border-gray-300 transition-colors">
+                <Card.Header>
+                  <Card.Title>{course.title}</Card.Title>
+                  {course.description && (
+                    <Card.Description>{course.description}</Card.Description>
+                  )}
+                </Card.Header>
+                <Card.Content className="mt-auto space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Course Code</span>
+                    <span className="font-medium text-gray-900">
+                      {course.course_code}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Semester</span>
+                    <span className="font-medium text-gray-900">
+                      {course.semester}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Invitation Code</span>
+                    <span className="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs font-medium text-gray-900">
+                      {course.invitation_code}
+                    </span>
+                  </div>
+                </Card.Content>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

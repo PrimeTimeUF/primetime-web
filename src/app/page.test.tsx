@@ -1,6 +1,5 @@
-import { render } from "@testing-library/react";
-import Home from "./page";
 import { redirect } from "next/navigation";
+import Home from "./page";
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
@@ -8,7 +7,7 @@ vi.mock("next/navigation", () => ({
 
 describe("Home page", () => {
   it("redirects to /login", () => {
-    render(<Home />);
+    Home();
     expect(redirect).toHaveBeenCalledWith("/login");
   });
 });

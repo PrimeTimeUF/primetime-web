@@ -36,27 +36,8 @@ function DashboardHeader() {
           <SidebarNav />
         </div>
 
-        {/* Right: Actions + User Menu */}
+        {/* Right: User Menu */}
         <div className="flex items-center gap-4">
-          <Link
-            href="/teacher/courses/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <line x1="8" y1="3" x2="8" y2="13" />
-              <line x1="3" y1="8" x2="13" y2="8" />
-            </svg>
-            Create Course
-          </Link>
           <UserMenu />
         </div>
       </div>

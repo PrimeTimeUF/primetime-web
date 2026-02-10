@@ -61,8 +61,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users away from auth pages
-  if ((pathname === '/login' || pathname === '/signup') && session) {
+  // Redirect authenticated users away from auth pages and root
+  if ((pathname === '/' || pathname === '/login' || pathname === '/signup') && session) {
     // Get user role to redirect to appropriate dashboard
     const { data: userData } = await supabase
       .from('users')

@@ -160,8 +160,8 @@ export default function ButtonExamples() {
       <section className="border-t pt-8">
         <h2 className="text-2xl font-bold mb-4">Props Reference</h2>
         <div className="bg-gray-50 p-6 rounded-lg font-mono text-sm space-y-2">
-          <div><strong>variant:</strong> "primary" | "secondary" | "ghost" (default: "primary")</div>
-          <div><strong>size:</strong> "sm" | "default" | "lg" (default: "default")</div>
+          <div><strong>variant:</strong> &quot;primary&quot; | &quot;secondary&quot; | &quot;ghost&quot; (default: &quot;primary&quot;)</div>
+          <div><strong>size:</strong> &quot;sm&quot; | &quot;default&quot; | &quot;lg&quot; (default: &quot;default&quot;)</div>
           <div><strong>fullWidth:</strong> boolean (default: false)</div>
           <div><strong>iconBefore:</strong> React.ReactNode</div>
           <div><strong>iconAfter:</strong> React.ReactNode</div>

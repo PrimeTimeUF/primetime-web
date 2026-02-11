@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@/components";
@@ -32,15 +32,9 @@ export default function SignUpPage() {
   const [termsError, setTermsError] = useState("");
   const [apiError, setApiError] = useState("");
 
-  // Password strength
-  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
-
-  // Calculate password strength
-  useEffect(() => {
-    if (!password) {
-      setPasswordStrength(null);
-      return;
-    }
+  // Password strength (derived from password, no effect needed)
+  const passwordStrength = useMemo<PasswordStrength | null>(() => {
+    if (!password) return null;
 
     let strength = 0;
 
@@ -51,26 +45,11 @@ export default function SignUpPage() {
     if (/[^a-zA-Z0-9]/.test(password)) strength++;
 
     if (strength <= 2) {
-      setPasswordStrength({
-        level: "weak",
-        width: "33%",
-        text: "Weak password",
-        color: "bg-red-500",
-      });
+      return { level: "weak", width: "33%", text: "Weak password", color: "bg-red-500" };
     } else if (strength <= 3) {
-      setPasswordStrength({
-        level: "medium",
-        width: "66%",
-        text: "Medium strength",
-        color: "bg-amber-500",
-      });
+      return { level: "medium", width: "66%", text: "Medium strength", color: "bg-amber-500" };
     } else {
-      setPasswordStrength({
-        level: "strong",
-        width: "100%",
-        text: "Strong password",
-        color: "bg-green-500",
-      });
+      return { level: "strong", width: "100%", text: "Strong password", color: "bg-green-500" };
     }
   }, [password]);
 

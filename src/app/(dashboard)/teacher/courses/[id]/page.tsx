@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button, Card } from "@/components";
@@ -13,6 +13,16 @@ interface Course {
   semester: string;
   invitation_code: string;
   created_at: string;
+}
+
+interface CourseMaterial {
+  id: string;
+  course_id: string;
+  file_name: string;
+  file_url: string;
+  file_size: number | null;
+  file_type: string | null;
+  uploaded_at: string;
 }
 
 type TabKey = "materials" | "students" | "sessions";
@@ -146,7 +156,7 @@ export default function TeacherCourseDetailPage() {
 
       {/* Tab content */}
       <div className="py-8">
-        {activeTab === "materials" && <MaterialsTab />}
+        {activeTab === "materials" && <MaterialsTab courseId={id} />}
         {activeTab === "students" && (
           <StudentsTab invitationCode={course.invitation_code} />
         )}
@@ -194,34 +204,252 @@ function TabButton({ label, count, active, onClick }: Readonly<TabButtonProps>) 
 /*  Materials Tab                                                      */
 /* ------------------------------------------------------------------ */
 
-function MaterialsTab() {
+interface MaterialsTabProps {
+  courseId: string;
+}
+
+function MaterialsTab({ courseId }: Readonly<MaterialsTabProps>) {
+  const [materials, setMaterials] = useState<CourseMaterial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchMaterials = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/courses/${courseId}/materials`);
+      if (res.ok) {
+        const data = await res.json();
+        setMaterials(data.materials || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch materials:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    fetchMaterials();
+  }, [fetchMaterials]);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (25MB)
+    const MAX_SIZE = 26214400;
+    if (file.size > MAX_SIZE) {
+      setUploadError("File size must be less than 25MB");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`/api/courses/${courseId}/materials`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Upload failed");
+      }
+
+      // Refresh materials list
+      await fetchMaterials();
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      setUploadError(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDelete = async (materialId: string) => {
+    if (!confirm("Are you sure you want to delete this material?")) return;
+
+    try {
+      const res = await fetch(
+        `/api/courses/${courseId}/materials?materialId=${materialId}`,
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+
+      // Refresh materials list
+      await fetchMaterials();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete material");
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return "Unknown size";
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(2)} MB`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <p className="text-sm text-gray-400">Loading materials...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <svg
-        width="64"
-        height="64"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="mb-4 text-gray-300"
-        aria-hidden="true"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="12" y1="12" x2="12" y2="18" />
-        <line x1="9" y1="15" x2="15" y2="15" />
-      </svg>
-      <h2 className="text-lg font-semibold text-black">No materials yet</h2>
-      <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
-        Upload your first course material to start generating priming sessions
-        for your students.
-      </p>
-      <Button className="mt-6" disabled>
-        Upload Material
-      </Button>
+    <div>
+      {/* Upload button and error */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          {uploadError && (
+            <p className="text-sm text-red-500">{uploadError}</p>
+          )}
+        </div>
+        <div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileChange}
+            className="hidden"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mov"
+          />
+          <Button
+            onClick={handleUploadClick}
+            disabled={isUploading}
+            iconBefore={
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            }
+          >
+            {isUploading ? "Uploading..." : "Upload Material"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Empty state */}
+      {materials.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mb-4 text-gray-300"
+            aria-hidden="true"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="12" y1="12" x2="12" y2="18" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+          </svg>
+          <h2 className="text-lg font-semibold text-black">No materials yet</h2>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
+            Upload your first course material to start generating priming sessions
+            for your students.
+          </p>
+        </div>
+      )}
+
+      {/* Materials list */}
+      {materials.length > 0 && (
+        <div className="space-y-3">
+          {materials.map((material) => (
+            <Card key={material.id} className="flex items-center gap-4 p-4">
+              {/* File icon */}
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-600"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+              </div>
+
+              {/* File info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-black truncate">
+                  {material.file_name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {formatFileSize(material.file_size)} · Uploaded {formatDate(material.uploaded_at)}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <button
+                onClick={() => handleDelete(material.id)}
+                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                title="Delete material"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [role, setRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState("");
 
@@ -126,17 +125,6 @@ export default function LoginPage() {
               />
             </div>
           </div>
-
-          {/* Remember Me */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 accent-black"
-            />
-            <span className="text-sm text-gray-600">Remember me</span>
-          </label>
 
           {/* Submit */}
           <Button type="submit" fullWidth isLoading={isLoading}>

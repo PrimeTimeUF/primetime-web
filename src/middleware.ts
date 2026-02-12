@@ -26,16 +26,16 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Get the session
+  // Verify the user with the Supabase Auth server
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
 
   // Protect dashboard routes
   if (pathname.startsWith('/teacher') || pathname.startsWith('/student')) {
-    if (!session) {
+    if (!user) {
       // Not authenticated, redirect to login
       const redirectUrl = new URL('/login', request.url)
       return NextResponse.redirect(redirectUrl)
@@ -46,7 +46,7 @@ export async function middleware(request: NextRequest) {
     const { data: userData } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (userData) {
@@ -62,12 +62,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect authenticated users away from auth pages and root
-  if ((pathname === '/' || pathname === '/login' || pathname === '/signup') && session) {
+  if ((pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password') && user) {
     // Get user role to redirect to appropriate dashboard
     const { data: userData } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (userData) {

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname, useRouter } from "next/navigation";
 

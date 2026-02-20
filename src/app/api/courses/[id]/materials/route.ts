@@ -117,6 +117,7 @@ export async function POST(
     // Parse multipart form data
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const lectureName = formData.get("lectureName") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -166,6 +167,7 @@ export async function POST(
         file_url: filePath, // Store the path, not the public URL
         file_size: file.size,
         file_type: file.type,
+        lecture_name: lectureName || null,
       })
       .select()
       .single();

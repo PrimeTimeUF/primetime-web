@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 interface TeacherLayoutProps {
   children: React.ReactNode;
@@ -90,7 +91,34 @@ function SidebarNav() {
 
 function UserMenu() {
   const [open, setOpen] = useState(false);
+  const [fullName, setFullName] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Fetch the authenticated user's profile
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("users")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+      if (data?.full_name) setFullName(data.full_name);
+    }
+    loadUser();
+  }, []);
+
+  // Derive initials from the name (up to 2 characters)
+  const initials = fullName
+    ? fullName
+        .split(" ")
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "…";
 
   // Close on outside click
   useEffect(() => {
@@ -122,10 +150,10 @@ function UserMenu() {
       >
         {/* Avatar */}
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-          DR
+          {initials}
         </div>
         <div className="text-left">
-          <div className="text-sm font-medium text-black">Dr. Rodriguez</div>
+          <div className="text-sm font-medium text-black">{fullName ?? "Loading…"}</div>
           <div className="text-xs text-gray-500">Teacher</div>
         </div>
         {/* Chevron */}

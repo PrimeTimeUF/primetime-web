@@ -24,6 +24,8 @@ interface CourseMaterial {
   file_size: number | null;
   file_type: string | null;
   uploaded_at: string;
+  lecture_name: string | null;
+  lecture_order: number | null;
 }
 
 type TabKey = "materials" | "students" | "sessions";
@@ -283,6 +285,9 @@ function MaterialsTab({
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [lectureName, setLectureName] = useState("");
+  const [existingLectures, setExistingLectures] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchMaterials = useCallback(async () => {
@@ -291,6 +296,16 @@ function MaterialsTab({
       if (res.ok) {
         const data = await res.json();
         setMaterials(data.materials || []);
+
+        // Extract unique lecture names
+        const lectures = Array.from(
+          new Set(
+            data.materials
+              .map((m: CourseMaterial) => m.lecture_name)
+              .filter((name: string | null) => name !== null)
+          )
+        ) as string[];
+        setExistingLectures(lectures);
       }
     } catch (error) {
       console.error("Failed to fetch materials:", error);
@@ -304,10 +319,10 @@ function MaterialsTab({
   }, [fetchMaterials]);
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    setShowUploadModal(true);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -318,12 +333,25 @@ function MaterialsTab({
       return;
     }
 
+    // File is selected, now user needs to select/enter lecture in modal
+  };
+
+  const handleUploadSubmit = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) return;
+
+    if (!lectureName.trim()) {
+      setUploadError("Please enter a lecture name");
+      return;
+    }
+
     setIsUploading(true);
     setUploadError("");
 
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("lectureName", lectureName.trim());
 
       const res = await fetch(`/api/courses/${courseId}/materials`, {
         method: "POST",
@@ -346,7 +374,9 @@ function MaterialsTab({
       // Refresh materials list
       await fetchMaterials();
 
-      // Reset file input
+      // Reset state
+      setShowUploadModal(false);
+      setLectureName("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -405,46 +435,136 @@ function MaterialsTab({
     );
   }
 
+  // Group materials by lecture
+  const groupedMaterials = materials.reduce((acc, material) => {
+    const lecture = material.lecture_name || "Ungrouped";
+    if (!acc[lecture]) {
+      acc[lecture] = [];
+    }
+    acc[lecture].push(material);
+    return acc;
+  }, {} as Record<string, CourseMaterial[]>);
+
   return (
     <div>
-      {/* Upload button and error */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          {uploadError && (
-            <p className="text-sm text-red-500">{uploadError}</p>
-          )}
-        </div>
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mov"
-          />
-          <Button
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            iconBefore={
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-semibold text-black">
+              Upload Course Material
+            </h3>
+
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Select File
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleFileChange}
+                className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mov"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Lecture Name
+              </label>
+              {existingLectures.length > 0 ? (
+                <>
+                  <select
+                    value={lectureName}
+                    onChange={(e) => setLectureName(e.target.value)}
+                    className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                  >
+                    <option value="">-- Select existing or type new below --</option>
+                    {existingLectures.map((lecture) => (
+                      <option key={lecture} value={lecture}>
+                        {lecture}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="my-2 text-center text-xs text-gray-500">OR</p>
+                  <input
+                    type="text"
+                    value={lectureName}
+                    onChange={(e) => setLectureName(e.target.value)}
+                    placeholder="Type a new lecture name"
+                    className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                  />
+                </>
+              ) : (
+                <input
+                  type="text"
+                  value={lectureName}
+                  onChange={(e) => setLectureName(e.target.value)}
+                  placeholder="Enter lecture name"
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                />
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                {existingLectures.length > 0
+                  ? "Select an existing lecture or type a new name"
+                  : "Enter a name for this lecture"}
+              </p>
+            </div>
+
+            {uploadError && (
+              <p className="mb-4 text-sm text-red-500">{uploadError}</p>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowUploadModal(false);
+                  setLectureName("");
+                  setUploadError("");
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+                disabled={isUploading}
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-            }
-          >
-            {isUploading ? "Uploading..." : "Upload Material"}
-          </Button>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUploadSubmit}
+                disabled={isUploading || !fileInputRef.current?.files?.[0]}
+              >
+                {isUploading ? "Uploading..." : "Upload"}
+              </Button>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* Upload button */}
+      <div className="mb-6 flex items-center justify-end">
+        <Button
+          onClick={handleUploadClick}
+          disabled={isUploading}
+          iconBefore={
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          }
+        >
+          Upload Material
+        </Button>
       </div>
 
       {/* Empty state */}
@@ -475,68 +595,77 @@ function MaterialsTab({
         </div>
       )}
 
-      {/* Materials list */}
+      {/* Materials list grouped by lecture */}
       {materials.length > 0 && (
-        <div className="space-y-3">
-          {materials.map((material) => {
-            const session = getSessionStatusForMaterial(material.id);
-            return (
-              <Card key={material.id} className="flex items-center gap-4 p-4">
-                {/* File icon */}
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-gray-600"
-                  >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                </div>
+        <div className="space-y-6">
+          {Object.entries(groupedMaterials).map(([lectureName, lectureMaterials]) => (
+            <div key={lectureName}>
+              <h3 className="mb-3 text-sm font-semibold text-gray-700">
+                {lectureName}
+              </h3>
+              <div className="space-y-3">
+                {lectureMaterials.map((material) => {
+                  const session = getSessionStatusForMaterial(material.id);
+                  return (
+                    <Card key={material.id} className="flex items-center gap-4 p-4">
+                      {/* File icon */}
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-600"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                      </div>
 
-                {/* File info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-black truncate">
-                    {material.file_name}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-gray-500">
-                      {formatFileSize(material.file_size)} · Uploaded{" "}
-                      {formatDate(material.uploaded_at)}
-                    </p>
-                    {session && <SessionStatusBadge status={session.status} />}
-                  </div>
-                </div>
+                      {/* File info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-black truncate">
+                          {material.file_name}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(material.file_size)} · Uploaded{" "}
+                            {formatDate(material.uploaded_at)}
+                          </p>
+                          {session && <SessionStatusBadge status={session.status} />}
+                        </div>
+                      </div>
 
-                {/* Actions */}
-                <button
-                  onClick={() => handleDelete(material.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                  title="Delete material"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  </svg>
-                </button>
-              </Card>
-            );
-          })}
+                      {/* Actions */}
+                      <button
+                        onClick={() => handleDelete(material.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        title="Delete material"
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

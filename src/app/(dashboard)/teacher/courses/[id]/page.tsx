@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card } from "@/components";
+import { Button, Card, CreateSessionModal } from "@/components";
 import type { PrimingSessionListItem } from "@/lib/types/priming-session";
 
 interface Course {
@@ -94,20 +94,6 @@ export default function TeacherCourseDetailPage() {
       }
     };
   }, [sessions, fetchSessions]);
-
-  const triggerGeneration = useCallback(
-    (materialId: string) => {
-      fetch(`/api/courses/${id}/materials/${materialId}/generate`, {
-        method: "POST",
-      }).then(() => {
-        // Refresh sessions after triggering so the "generating" row shows up
-        setTimeout(fetchSessions, 1000);
-      }).catch((err) => {
-        console.error("Failed to trigger generation:", err);
-      });
-    },
-    [id, fetchSessions]
-  );
 
   if (isLoading) {
     return (
@@ -210,11 +196,7 @@ export default function TeacherCourseDetailPage() {
       {/* Tab content */}
       <div className="py-8">
         {activeTab === "materials" && (
-          <MaterialsTab
-            courseId={id}
-            sessions={sessions}
-            onPdfUploaded={triggerGeneration}
-          />
+          <MaterialsTab courseId={id} sessions={sessions} />
         )}
         {activeTab === "students" && (
           <StudentsTab invitationCode={course.invitation_code} />
@@ -224,7 +206,7 @@ export default function TeacherCourseDetailPage() {
             courseId={id}
             sessions={sessions}
             isLoading={sessionsLoading}
-            onRetry={triggerGeneration}
+            onRefresh={fetchSessions}
           />
         )}
       </div>
@@ -273,13 +255,11 @@ function TabButton({ label, count, active, onClick }: Readonly<TabButtonProps>) 
 interface MaterialsTabProps {
   courseId: string;
   sessions: PrimingSessionListItem[];
-  onPdfUploaded: (materialId: string) => void;
 }
 
 function MaterialsTab({
   courseId,
   sessions,
-  onPdfUploaded,
 }: Readonly<MaterialsTabProps>) {
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -361,14 +341,6 @@ function MaterialsTab({
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Upload failed");
-      }
-
-      const data = await res.json();
-      const material = data.material as CourseMaterial;
-
-      // Trigger AI generation for PDFs
-      if (material.file_type === "application/pdf") {
-        onPdfUploaded(material.id);
       }
 
       // Refresh materials list
@@ -829,15 +801,17 @@ interface SessionsTabProps {
   courseId: string;
   sessions: PrimingSessionListItem[];
   isLoading: boolean;
-  onRetry: (materialId: string) => void;
+  onRefresh: () => void;
 }
 
 function SessionsTab({
   courseId,
   sessions,
   isLoading,
-  onRetry,
+  onRefresh,
 }: Readonly<SessionsTabProps>) {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -848,6 +822,10 @@ function SessionsTab({
     });
   };
 
+  const handleSessionCreated = () => {
+    setTimeout(onRefresh, 1000);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -856,127 +834,157 @@ function SessionsTab({
     );
   }
 
-  if (sessions.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <svg
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="mb-4 text-gray-300"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="10 8 16 12 10 16 10 8" />
-        </svg>
-        <h2 className="text-lg font-semibold text-black">
-          No priming sessions yet
-        </h2>
-        <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
-          Priming sessions will be generated automatically when you upload PDF
-          course materials.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      {sessions.map((session) => {
-        const materialName = session.material?.file_name ?? "Unknown file";
-        const isClickable = session.status === "completed";
-
-        const card = (
-          <Card
-            key={session.id}
-            className={`flex items-center gap-4 p-4${
-              isClickable ? " cursor-pointer transition-shadow hover:shadow-md" : ""
-            }`}
-          >
-            {/* Session icon */}
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-600"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polygon points="10 8 16 12 10 16 10 8" />
-              </svg>
-            </div>
-
-            {/* Session info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-black truncate">
-                {session.title || "Generating session..."}
-              </p>
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-gray-500 truncate">
-                  From: {materialName} · {formatDate(session.created_at)}
-                </p>
-                <SessionStatusBadge status={session.status} />
-              </div>
-              {session.status === "failed" && session.error_message && (
-                <p className="mt-1 text-xs text-red-500 truncate">
-                  {session.error_message}
-                </p>
-              )}
-            </div>
-
-            {/* Retry button for failed sessions */}
-            {session.status === "failed" && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => onRetry(session.material_id)}
-              >
-                Retry
-              </Button>
-            )}
-
-            {/* Arrow for completed sessions */}
-            {isClickable && (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0 text-gray-400"
-              >
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            )}
-          </Card>
-        );
-
-        if (isClickable) {
-          return (
-            <Link
-              key={session.id}
-              href={`/teacher/courses/${courseId}/sessions/${session.id}`}
+    <div>
+      {/* Create Session button + modal */}
+      <div className="mb-6 flex items-center justify-end">
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          iconBefore={
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {card}
-            </Link>
-          );
-        }
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          }
+        >
+          Create Priming Session
+        </Button>
+      </div>
 
-        return <div key={session.id}>{card}</div>;
-      })}
+      <CreateSessionModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+        courseId={courseId}
+        onCreated={handleSessionCreated}
+      />
+
+      {sessions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mb-4 text-gray-300"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="10 8 16 12 10 16 10 8" />
+          </svg>
+          <h2 className="text-lg font-semibold text-black">
+            No priming sessions yet
+          </h2>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
+            Upload PDF materials, then click &quot;Create Priming Session&quot;
+            to generate a session for a lecture group.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sessions.map((session) => {
+            const sessionLabel =
+              session.lecture_name ??
+              session.material?.file_name ??
+              "Unknown source";
+            const isClickable = session.status === "completed";
+
+            const card = (
+              <Card
+                key={session.id}
+                className={`flex items-center gap-4 p-4${
+                  isClickable
+                    ? " cursor-pointer transition-shadow hover:shadow-md"
+                    : ""
+                }`}
+              >
+                {/* Session icon */}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-gray-600"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="10 8 16 12 10 16 10 8" />
+                  </svg>
+                </div>
+
+                {/* Session info */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-black truncate">
+                    {session.title || "Generating session..."}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-gray-500 truncate">
+                      {sessionLabel} · {formatDate(session.created_at)}
+                    </p>
+                    {session.duration && (
+                      <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                        {session.duration} min
+                      </span>
+                    )}
+                    <SessionStatusBadge status={session.status} />
+                  </div>
+                  {session.status === "failed" && session.error_message && (
+                    <p className="mt-1 text-xs text-red-500 truncate">
+                      {session.error_message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Arrow for completed sessions */}
+                {isClickable && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-gray-400"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                )}
+              </Card>
+            );
+
+            if (isClickable) {
+              return (
+                <Link
+                  key={session.id}
+                  href={`/teacher/courses/${courseId}/sessions/${session.id}`}
+                >
+                  {card}
+                </Link>
+              );
+            }
+
+            return <div key={session.id}>{card}</div>;
+          })}
+        </div>
+      )}
     </div>
   );
 }

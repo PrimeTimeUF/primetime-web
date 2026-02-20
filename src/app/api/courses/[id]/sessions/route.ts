@@ -54,11 +54,11 @@ export async function GET(
       }
     }
 
-    // Fetch sessions with material file name
+    // Fetch sessions with material file name and new fields
     const { data: sessions, error: sessionsError } = await supabase
       .from("priming_sessions")
       .select(
-        "id, material_id, course_id, title, status, error_message, created_at, completed_at, material:course_materials(file_name)"
+        "id, material_id, course_id, title, status, error_message, created_at, completed_at, lecture_name, duration, material:course_materials(file_name)"
       )
       .eq("course_id", courseId)
       .order("created_at", { ascending: false });

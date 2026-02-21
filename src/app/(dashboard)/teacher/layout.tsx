@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { usePathname, useRouter } from "next/navigation";
 
 interface TeacherLayoutProps {
   children: React.ReactNode;
@@ -90,7 +91,41 @@ function SidebarNav() {
 
 function UserMenu() {
   const [open, setOpen] = useState(false);
+  const [fullName, setFullName] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  async function handleLogout() {
+    setOpen(false);
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }
+
+  // Fetch the authenticated user's profile
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("users")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+      if (data?.full_name) setFullName(data.full_name);
+    }
+    loadUser();
+  }, []);
+
+  // Derive initials from the name (up to 2 characters)
+  const initials = fullName
+    ? fullName
+        .split(" ")
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "…";
 
   // Close on outside click
   useEffect(() => {
@@ -122,10 +157,10 @@ function UserMenu() {
       >
         {/* Avatar */}
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-          DR
+          {initials}
         </div>
         <div className="text-left">
-          <div className="text-sm font-medium text-black">Dr. Rodriguez</div>
+          <div className="text-sm font-medium text-black">{fullName ?? "Loading…"}</div>
           <div className="text-xs text-gray-500">Teacher</div>
         </div>
         {/* Chevron */}
@@ -174,19 +209,19 @@ function UserMenu() {
           {/* Divider */}
           <div className="my-2 h-px bg-gray-100" />
 
-          <DropdownItem
-            href="/login"
-            icon={
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-md px-4 py-3 text-sm text-red-500 transition-colors hover:bg-gray-100"
+          >
+            <span className="h-[18px] w-[18px] text-red-500">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-            }
-            label="Log out"
-            danger
-            onClick={() => setOpen(false)}
-          />
+            </span>
+            Log out
+          </button>
         </div>
       )}
     </div>

@@ -33,7 +33,7 @@ export interface SessionQuestion {
 
 export interface PrimingSession {
   id: string;
-  material_id: string;
+  material_id: string | null;
   course_id: string;
   title: string | null;
   status: "generating" | "completed" | "failed";
@@ -41,6 +41,8 @@ export interface PrimingSession {
   error_message: string | null;
   created_at: string;
   completed_at: string | null;
+  lecture_name: string | null;
+  duration: 10 | 15 | 30 | null;
 }
 
 export interface PrimingSessionWithQuestions extends PrimingSession {
@@ -49,14 +51,16 @@ export interface PrimingSessionWithQuestions extends PrimingSession {
 
 export interface PrimingSessionListItem {
   id: string;
-  material_id: string;
+  material_id: string | null;
   course_id: string;
   title: string | null;
   status: "generating" | "completed" | "failed";
   error_message: string | null;
   created_at: string;
   completed_at: string | null;
+  lecture_name: string | null;
+  duration: 10 | 15 | 30 | null;
   material: {
     file_name: string;
-  };
+  } | null;
 }

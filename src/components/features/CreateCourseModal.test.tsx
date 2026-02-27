@@ -148,6 +148,43 @@ describe("CreateCourseModal", () => {
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
+  it("includes description in fetch body when provided", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ course: { id: "1" } }),
+    } as Response);
+
+    render(<CreateCourseModal {...defaultProps} />);
+    await userEvent.type(screen.getByLabelText("Course Title"), "Psych 101");
+    await userEvent.type(screen.getByLabelText("Description"), "A course about psychology");
+    await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
+    await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
+    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith("/api/courses", expect.objectContaining({
+        body: JSON.stringify({
+          title: "Psych 101",
+          description: "A course about psychology",
+          courseCode: "PSY 101",
+          semester: "Fall 2026",
+        }),
+      }));
+    });
+  });
+
+  it("shows validation error when title is whitespace only", async () => {
+    render(<CreateCourseModal {...defaultProps} />);
+    await userEvent.type(screen.getByLabelText("Course Title"), "   ");
+    await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
+    await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
+    const form = document.querySelector("form")!;
+    fireEvent.submit(form);
+    await waitFor(() => {
+      expect(screen.getByText("Title, course code, and semester are required.")).toBeInTheDocument();
+    });
+  });
+
   it("resets form fields when modal is closed and reopened", async () => {
     const { rerender } = render(<CreateCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Course Title"), "Some Course");

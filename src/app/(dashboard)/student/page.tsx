@@ -82,7 +82,8 @@ export default function StudentDashboardPage() {
 
     fetchUserData();
     fetchEnrollments();
-  }, [router, fetchEnrollments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchEnrollments]);
 
   // Close user menu when clicking outside
   useEffect(() => {

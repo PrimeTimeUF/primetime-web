@@ -194,8 +194,16 @@ export default function StudentCourseDetailPage() {
                 </p>
               )}
               <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-                  {getInitials(course.teacher_name)}
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-sm font-semibold text-white overflow-hidden">
+                  {course.teacher_profile_image_url ? (
+                    <img
+                      src={course.teacher_profile_image_url}
+                      alt={course.teacher_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    getInitials(course.teacher_name)
+                  )}
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider text-gray-500">

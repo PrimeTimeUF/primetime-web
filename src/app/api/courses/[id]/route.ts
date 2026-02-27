@@ -68,10 +68,10 @@ export async function GET(
         return NextResponse.json({ error: "Course not found" }, { status: 404 });
       }
 
-      // Fetch teacher name separately (courses.teacher_id -> auth.users, not public.users)
+      // Fetch teacher name and profile image separately (courses.teacher_id -> auth.users, not public.users)
       const { data: teacher } = await supabase
         .from("users")
-        .select("full_name")
+        .select("full_name, profile_image_url")
         .eq("id", course.teacher_id)
         .single();
 
@@ -84,6 +84,7 @@ export async function GET(
             course_code: course.course_code,
             semester: course.semester,
             teacher_name: teacher?.full_name ?? "Unknown",
+            teacher_profile_image_url: teacher?.profile_image_url ?? null,
           },
         },
         { status: 200 }

@@ -53,7 +53,6 @@ function DashboardHeader() {
 const NAV_ITEMS = [
   { label: "Courses", href: "/teacher" },
   { label: "Analytics", href: "/teacher/analytics" },
-  { label: "Settings", href: "/teacher/settings" },
 ] as const;
 
 function SidebarNav() {
@@ -92,6 +91,7 @@ function SidebarNav() {
 function UserMenu() {
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -109,10 +109,11 @@ function UserMenu() {
       if (!user) return;
       const { data } = await supabase
         .from("users")
-        .select("full_name")
+        .select("full_name, profile_image_url")
         .eq("id", user.id)
         .single();
       if (data?.full_name) setFullName(data.full_name);
+      if (data?.profile_image_url) setProfileImageUrl(data.profile_image_url);
     }
     loadUser();
   }, []);
@@ -156,8 +157,16 @@ function UserMenu() {
         className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100"
       >
         {/* Avatar */}
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-          {initials}
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold text-white overflow-hidden">
+          {profileImageUrl ? (
+            <img
+              src={profileImageUrl}
+              alt={fullName ?? "User"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            initials
+          )}
         </div>
         <div className="text-left">
           <div className="text-sm font-medium text-black">{fullName ?? "Loading…"}</div>
@@ -191,18 +200,7 @@ function UserMenu() {
                 <circle cx="12" cy="7" r="4" />
               </svg>
             }
-            label="Profile"
-            onClick={() => setOpen(false)}
-          />
-          <DropdownItem
-            href="/teacher/settings"
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            }
-            label="Settings"
+            label="Profile & Settings"
             onClick={() => setOpen(false)}
           />
 

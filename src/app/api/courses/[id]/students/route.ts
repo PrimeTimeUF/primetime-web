@@ -54,7 +54,7 @@ export async function GET(
     const studentIds = enrollments.map((e) => e.student_id);
     const { data: users, error: usersError } = await supabase
       .from("users")
-      .select("id, full_name, email")
+      .select("id, full_name, email, profile_image_url")
       .in("id", studentIds);
 
     if (usersError) {
@@ -75,6 +75,7 @@ export async function GET(
         id: e.student_id,
         full_name: userInfo?.full_name ?? "Unknown",
         email: userInfo?.email ?? "",
+        profile_image_url: userInfo?.profile_image_url ?? null,
         enrolled_at: e.enrolled_at,
       };
     });

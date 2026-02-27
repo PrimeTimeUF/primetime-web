@@ -5,6 +5,7 @@ export interface StudentCourseDetail {
   course_code: string;
   semester: string;
   teacher_name: string;
+  teacher_profile_image_url: string | null;
 }
 
 export interface StudentCourseProgress {

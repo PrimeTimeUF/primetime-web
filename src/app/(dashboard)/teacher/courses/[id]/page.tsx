@@ -714,6 +714,7 @@ interface EnrolledStudent {
   id: string;
   full_name: string;
   email: string;
+  profile_image_url: string | null;
   enrolled_at: string;
 }
 
@@ -860,8 +861,16 @@ function StudentsTab({ courseId, invitationCode }: Readonly<StudentsTabProps>) {
         <div className="space-y-3">
           {students.map((student) => (
             <Card key={student.id} className="flex items-center gap-4 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-sm font-semibold text-white">
-                {getInitials(student.full_name)}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-sm font-semibold text-white overflow-hidden">
+                {student.profile_image_url ? (
+                  <img
+                    src={student.profile_image_url}
+                    alt={student.full_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getInitials(student.full_name)
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-black truncate">

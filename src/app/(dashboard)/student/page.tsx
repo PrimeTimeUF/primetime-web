@@ -12,6 +12,7 @@ interface UserData {
   email: string;
   role: string;
   full_name: string;
+  profile_image_url: string | null;
 }
 
 interface CourseData {
@@ -211,8 +212,16 @@ export default function StudentDashboardPage() {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-3 px-3 py-2 bg-transparent border-none rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-sm font-semibold">
-                  {getInitials(userData.full_name)}
+                <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-sm font-semibold overflow-hidden">
+                  {userData.profile_image_url ? (
+                    <img
+                      src={userData.profile_image_url}
+                      alt={userData.full_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    getInitials(userData.full_name)
+                  )}
                 </div>
                 <div className="text-left">
                   <div className="text-sm font-medium text-black">{userData.full_name}</div>
@@ -234,8 +243,8 @@ export default function StudentDashboardPage() {
               {/* Dropdown Menu */}
               {userMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 min-w-[200px] bg-white border border-gray-200 rounded-xl shadow-lg p-2">
-                  <a
-                    href="#profile"
+                  <Link
+                    href="/student/profile"
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm text-black bg-transparent border-none rounded-md hover:bg-gray-100 transition-colors"
                   >
                     <svg
@@ -250,26 +259,8 @@ export default function StudentDashboardPage() {
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
-                    Profile
-                  </a>
-                  <a
-                    href="#settings"
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-black bg-transparent border-none rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <svg
-                      className="w-[18px] h-[18px] text-gray-500"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="3" />
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
-                    Settings
-                  </a>
+                    Profile & Settings
+                  </Link>
                   <div className="h-px bg-gray-100 my-2"></div>
                   <button
                     onClick={handleLogout}

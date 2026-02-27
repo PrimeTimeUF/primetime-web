@@ -101,8 +101,7 @@ export default function StudentDashboardPage() {
 
     fetchUserData();
     fetchEnrollments();
-    fetchAnalytics();
-  }, [router, fetchEnrollments, fetchAnalytics]);
+  }, [fetchEnrollments]);
 
   // Close user menu when clicking outside
   useEffect(() => {

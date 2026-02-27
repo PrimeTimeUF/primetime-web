@@ -66,7 +66,7 @@ export async function PATCH(request: NextRequest) {
     const { full_name, profile_image_url } = body;
 
     // Validate inputs
-    const updates: { full_name?: string; profile_image_url?: string } = {};
+    const updates: { full_name?: string; profile_image_url?: string | null } = {};
 
     if (full_name !== undefined) {
       if (typeof full_name !== "string" || full_name.trim().length === 0) {

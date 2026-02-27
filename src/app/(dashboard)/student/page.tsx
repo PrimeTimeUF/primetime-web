@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import { EnrollCourseModal } from "@/components";
+import { EnrollCourseModal, AnalyticsStatsBar, SessionHistoryTable } from "@/components";
+import type { StudentAnalytics } from "@/lib/types/student-analytics";
 
 interface UserData {
   id: string;
@@ -33,6 +35,8 @@ export default function StudentDashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [analytics, setAnalytics] = useState<StudentAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +49,21 @@ export default function StudentDashboardPage() {
       }
     } catch (error) {
       console.error("Failed to fetch enrollments:", error);
+    }
+  }, []);
+
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const res = await fetch("/api/student/results");
+      if (res.ok) {
+        const data: StudentAnalytics = await res.json();
+        setAnalytics(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch analytics:", error);
+    } finally {
+      setAnalyticsLoading(false);
     }
   }, []);
 
@@ -82,7 +101,6 @@ export default function StudentDashboardPage() {
 
     fetchUserData();
     fetchEnrollments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchEnrollments]);
 
   // Close user menu when clicking outside
@@ -296,6 +314,28 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
+        {/* Your Performance */}
+        {hasEnrollments && (
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-black mb-4">Your Performance</h2>
+            {analyticsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
+                    <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
+                    <div className="h-7 w-16 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : analytics ? (
+              <div className="space-y-4">
+                <AnalyticsStatsBar summary={analytics.summary} />
+                <SessionHistoryTable results={analytics.results} />
+              </div>
+            ) : null}
+          </section>
+        )}
+
         {/* Empty State */}
         {!hasEnrollments && (
           <div className="flex flex-col items-center justify-center py-16 px-6 bg-white border border-gray-200 rounded-xl">
@@ -345,24 +385,26 @@ export default function StudentDashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {enrollments.map((enrollment) => (
-                <article
+                <Link
                   key={enrollment.id}
-                  className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                  href={`/student/courses/${enrollment.course.id}`}
                 >
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                      📚
+                  <article className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                        📚
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-black mb-1 leading-tight">
+                          {enrollment.course.title}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                          {enrollment.course.course_code} · {enrollment.course.semester}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold text-black mb-1 leading-tight">
-                        {enrollment.course.title}
-                      </h3>
-                      <span className="text-sm text-gray-500">
-                        {enrollment.course.course_code} · {enrollment.course.semester}
-                      </span>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               ))}
             </div>
           </section>

@@ -43,6 +43,8 @@ export interface PrimingSession {
   completed_at: string | null;
   lecture_name: string | null;
   duration: 10 | 15 | 30 | null;
+  audio_url: string | null;
+  audio_status: "none" | "generating" | "ready" | "failed";
 }
 
 export interface PrimingSessionWithQuestions extends PrimingSession {

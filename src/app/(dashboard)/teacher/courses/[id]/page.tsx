@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CreateSessionModal } from "@/components";
+import { Button, Card, CreateSessionModal, AssignSessionModal } from "@/components";
 import type { PrimingSessionListItem } from "@/lib/types/priming-session";
+import type { SessionAssignmentWithSession } from "@/lib/types/session-assignment";
 
 interface Course {
   id: string;
@@ -38,7 +39,20 @@ export default function TeacherCourseDetailPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("materials");
   const [sessions, setSessions] = useState<PrimingSessionListItem[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [studentCount, setStudentCount] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchStudentCount = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/courses/${id}/students`);
+      if (res.ok) {
+        const data = await res.json();
+        setStudentCount(data.count ?? 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch student count:", err);
+    }
+  }, [id]);
 
   const fetchCourse = useCallback(async () => {
     setError("");
@@ -75,7 +89,8 @@ export default function TeacherCourseDetailPage() {
   useEffect(() => {
     fetchCourse();
     fetchSessions();
-  }, [fetchCourse, fetchSessions]);
+    fetchStudentCount();
+  }, [fetchCourse, fetchSessions, fetchStudentCount]);
 
   // Poll while any session is generating
   useEffect(() => {
@@ -158,7 +173,7 @@ export default function TeacherCourseDetailPage() {
               <span className="h-1 w-1 rounded-full bg-gray-300" />
               <span>{course.semester}</span>
               <span className="h-1 w-1 rounded-full bg-gray-300" />
-              <span>0 students</span>
+              <span>{studentCount} student{studentCount !== 1 ? "s" : ""}</span>
             </div>
           </div>
         </div>
@@ -181,7 +196,7 @@ export default function TeacherCourseDetailPage() {
         />
         <TabButton
           label="Students"
-          count={0}
+          count={studentCount}
           active={activeTab === "students"}
           onClick={() => setActiveTab("students")}
         />
@@ -199,7 +214,10 @@ export default function TeacherCourseDetailPage() {
           <MaterialsTab courseId={id} sessions={sessions} />
         )}
         {activeTab === "students" && (
-          <StudentsTab invitationCode={course.invitation_code} />
+          <StudentsTab
+            courseId={id}
+            invitationCode={course.invitation_code}
+          />
         )}
         {activeTab === "sessions" && (
           <SessionsTab
@@ -692,12 +710,40 @@ function SessionStatusBadge({
 /*  Students Tab                                                       */
 /* ------------------------------------------------------------------ */
 
+interface EnrolledStudent {
+  id: string;
+  full_name: string;
+  email: string;
+  profile_image_url: string | null;
+  enrolled_at: string;
+}
+
 interface StudentsTabProps {
+  courseId: string;
   invitationCode: string;
 }
 
-function StudentsTab({ invitationCode }: Readonly<StudentsTabProps>) {
+function StudentsTab({ courseId, invitationCode }: Readonly<StudentsTabProps>) {
   const [copied, setCopied] = useState(false);
+  const [students, setStudents] = useState<EnrolledStudent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchStudents = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/courses/${courseId}/students`);
+      if (res.ok) {
+        const data = await res.json();
+        setStudents(data.students || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch students:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [courseId]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch
+  useEffect(() => { fetchStudents(); }, [fetchStudents]);
 
   const handleCopy = async () => {
     try {
@@ -707,6 +753,23 @@ function StudentsTab({ invitationCode }: Readonly<StudentsTabProps>) {
     } catch {
       // Fallback: do nothing
     }
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return "?";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   return (
@@ -764,31 +827,66 @@ function StudentsTab({ invitationCode }: Readonly<StudentsTabProps>) {
         </Button>
       </Card>
 
-      {/* Empty students state */}
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <svg
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="mb-4 text-gray-300"
-          aria-hidden="true"
-        >
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-        <h2 className="text-lg font-semibold text-black">
-          No students enrolled yet
-        </h2>
-        <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
-          Share the invitation code with your students so they can enroll in this
-          course.
-        </p>
-      </div>
+      {/* Students list */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <p className="text-sm text-gray-400">Loading students...</p>
+        </div>
+      ) : students.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mb-4 text-gray-300"
+            aria-hidden="true"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <h2 className="text-lg font-semibold text-black">
+            No students enrolled yet
+          </h2>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-gray-500">
+            Share the invitation code with your students so they can enroll in
+            this course.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {students.map((student) => (
+            <Card key={student.id} className="flex items-center gap-4 p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-sm font-semibold text-white overflow-hidden">
+                {student.profile_image_url ? (
+                  <img
+                    src={student.profile_image_url}
+                    alt={student.full_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getInitials(student.full_name)
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-black truncate">
+                  {student.full_name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {student.email}
+                </p>
+              </div>
+              <p className="text-xs text-gray-400">
+                Enrolled {formatDate(student.enrolled_at)}
+              </p>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -811,6 +909,29 @@ function SessionsTab({
   onRefresh,
 }: Readonly<SessionsTabProps>) {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignments, setAssignments] = useState<SessionAssignmentWithSession[]>([]);
+
+  const fetchAssignments = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/courses/${courseId}/assignments`);
+      if (res.ok) {
+        const data = await res.json();
+        setAssignments(data.assignments || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch assignments:", err);
+    }
+  }, [courseId]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch
+  useEffect(() => { fetchAssignments(); }, [fetchAssignments]);
+
+  const assignedSessionIds = new Set(assignments.map((a) => a.session_id));
+
+  const getAssignmentForSession = (sessionId: string) => {
+    return assignments.find((a) => a.session_id === sessionId);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -822,8 +943,20 @@ function SessionsTab({
     });
   };
 
+  const formatDueDate = (dateString: string) => {
+    return new Date(dateString + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   const handleSessionCreated = () => {
     setTimeout(onRefresh, 1000);
+  };
+
+  const handleAssigned = () => {
+    fetchAssignments();
   };
 
   if (isLoading) {
@@ -836,8 +969,31 @@ function SessionsTab({
 
   return (
     <div>
-      {/* Create Session button + modal */}
-      <div className="mb-6 flex items-center justify-end">
+      {/* Create Session + Assign buttons */}
+      <div className="mb-6 flex items-center justify-end gap-3">
+        <Button
+          variant="secondary"
+          onClick={() => setShowAssignModal(true)}
+          iconBefore={
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          }
+        >
+          Assign Session
+        </Button>
         <Button
           onClick={() => setShowCreateModal(true)}
           iconBefore={
@@ -865,6 +1021,15 @@ function SessionsTab({
         onOpenChange={setShowCreateModal}
         courseId={courseId}
         onCreated={handleSessionCreated}
+      />
+
+      <AssignSessionModal
+        open={showAssignModal}
+        onOpenChange={setShowAssignModal}
+        courseId={courseId}
+        sessions={sessions}
+        assignedSessionIds={assignedSessionIds}
+        onAssigned={handleAssigned}
       />
 
       {sessions.length === 0 ? (
@@ -900,6 +1065,7 @@ function SessionsTab({
               session.material?.file_name ??
               "Unknown source";
             const isClickable = session.status === "completed";
+            const assignment = getAssignmentForSession(session.id);
 
             const card = (
               <Card
@@ -933,7 +1099,7 @@ function SessionsTab({
                   <p className="text-sm font-medium text-black truncate">
                     {session.title || "Generating session..."}
                   </p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <p className="text-xs text-gray-500 truncate">
                       {sessionLabel} · {formatDate(session.created_at)}
                     </p>
@@ -943,6 +1109,26 @@ function SessionsTab({
                       </span>
                     )}
                     <SessionStatusBadge status={session.status} />
+                    {assignment && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        Due {formatDueDate(assignment.due_date)}
+                      </span>
+                    )}
                   </div>
                   {session.status === "failed" && session.error_message && (
                     <p className="mt-1 text-xs text-red-500 truncate">

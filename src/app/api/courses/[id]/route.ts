@@ -24,25 +24,74 @@ export async function GET(
       .eq("id", user.id)
       .single();
 
-    if (profileError || profile.role !== "teacher") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (profileError || !profile) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const { data: course, error: courseError } = await supabase
-      .from("courses")
-      .select("*")
-      .eq("id", id)
-      .single();
+    if (profile.role === "teacher") {
+      const { data: course, error: courseError } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-    if (courseError || !course) {
-      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      if (courseError || !course) {
+        return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      }
+
+      if (course.teacher_id !== user.id) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      return NextResponse.json({ course }, { status: 200 });
+    } else if (profile.role === "student") {
+      // Verify enrollment
+      const { data: enrollment } = await supabase
+        .from("course_enrollments")
+        .select("id")
+        .eq("course_id", id)
+        .eq("student_id", user.id)
+        .single();
+
+      if (!enrollment) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      // Fetch course
+      const { data: course, error: courseError } = await supabase
+        .from("courses")
+        .select("id, title, description, course_code, semester, teacher_id")
+        .eq("id", id)
+        .single();
+
+      if (courseError || !course) {
+        return NextResponse.json({ error: "Course not found" }, { status: 404 });
+      }
+
+      // Fetch teacher name and profile image separately (courses.teacher_id -> auth.users, not public.users)
+      const { data: teacher } = await supabase
+        .from("users")
+        .select("full_name, profile_image_url")
+        .eq("id", course.teacher_id)
+        .single();
+
+      return NextResponse.json(
+        {
+          course: {
+            id: course.id,
+            title: course.title,
+            description: course.description,
+            course_code: course.course_code,
+            semester: course.semester,
+            teacher_name: teacher?.full_name ?? "Unknown",
+            teacher_profile_image_url: teacher?.profile_image_url ?? null,
+          },
+        },
+        { status: 200 }
+      );
     }
 
-    if (course.teacher_id !== user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    return NextResponse.json({ course }, { status: 200 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   } catch (error) {
     console.error("GET /api/courses/[id] error:", error);
     return NextResponse.json(

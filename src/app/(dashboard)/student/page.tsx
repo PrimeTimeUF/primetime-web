@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import { EnrollCourseModal } from "@/components";
+import { EnrollCourseModal, AnalyticsStatsBar, SessionHistoryTable } from "@/components";
+import type { StudentAnalytics } from "@/lib/types/student-analytics";
 
 interface UserData {
   id: string;
   email: string;
   role: string;
   full_name: string;
+  profile_image_url: string | null;
 }
 
 interface CourseData {
@@ -33,6 +36,8 @@ export default function StudentDashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [analytics, setAnalytics] = useState<StudentAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +50,21 @@ export default function StudentDashboardPage() {
       }
     } catch (error) {
       console.error("Failed to fetch enrollments:", error);
+    }
+  }, []);
+
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const res = await fetch("/api/student/results");
+      if (res.ok) {
+        const data: StudentAnalytics = await res.json();
+        setAnalytics(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch analytics:", error);
+    } finally {
+      setAnalyticsLoading(false);
     }
   }, []);
 
@@ -82,7 +102,7 @@ export default function StudentDashboardPage() {
 
     fetchUserData();
     fetchEnrollments();
-  }, [router, fetchEnrollments]);
+  }, [fetchEnrollments]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -192,8 +212,16 @@ export default function StudentDashboardPage() {
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-3 px-3 py-2 bg-transparent border-none rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
               >
-                <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-sm font-semibold">
-                  {getInitials(userData.full_name)}
+                <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center text-sm font-semibold overflow-hidden">
+                  {userData.profile_image_url ? (
+                    <img
+                      src={userData.profile_image_url}
+                      alt={userData.full_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    getInitials(userData.full_name)
+                  )}
                 </div>
                 <div className="text-left">
                   <div className="text-sm font-medium text-black">{userData.full_name}</div>
@@ -215,8 +243,8 @@ export default function StudentDashboardPage() {
               {/* Dropdown Menu */}
               {userMenuOpen && (
                 <div className="absolute top-full right-0 mt-2 min-w-[200px] bg-white border border-gray-200 rounded-xl shadow-lg p-2">
-                  <a
-                    href="#profile"
+                  <Link
+                    href="/student/profile"
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm text-black bg-transparent border-none rounded-md hover:bg-gray-100 transition-colors"
                   >
                     <svg
@@ -231,26 +259,8 @@ export default function StudentDashboardPage() {
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
-                    Profile
-                  </a>
-                  <a
-                    href="#settings"
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-black bg-transparent border-none rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <svg
-                      className="w-[18px] h-[18px] text-gray-500"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="3" />
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
-                    Settings
-                  </a>
+                    Profile & Settings
+                  </Link>
                   <div className="h-px bg-gray-100 my-2"></div>
                   <button
                     onClick={handleLogout}
@@ -294,6 +304,28 @@ export default function StudentDashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* Your Performance */}
+        {hasEnrollments && (
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-black mb-4">Your Performance</h2>
+            {analyticsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
+                    <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
+                    <div className="h-7 w-16 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : analytics ? (
+              <div className="space-y-4">
+                <AnalyticsStatsBar summary={analytics.summary} />
+                <SessionHistoryTable results={analytics.results} />
+              </div>
+            ) : null}
+          </section>
+        )}
 
         {/* Empty State */}
         {!hasEnrollments && (
@@ -344,24 +376,26 @@ export default function StudentDashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {enrollments.map((enrollment) => (
-                <article
+                <Link
                   key={enrollment.id}
-                  className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                  href={`/student/courses/${enrollment.course.id}`}
                 >
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                      📚
+                  <article className="bg-white border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                    <div className="flex items-start gap-4 mb-3">
+                      <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                        📚
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-black mb-1 leading-tight">
+                          {enrollment.course.title}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                          {enrollment.course.course_code} · {enrollment.course.semester}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold text-black mb-1 leading-tight">
-                        {enrollment.course.title}
-                      </h3>
-                      <span className="text-sm text-gray-500">
-                        {enrollment.course.course_code} · {enrollment.course.semester}
-                      </span>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </Link>
               ))}
             </div>
           </section>

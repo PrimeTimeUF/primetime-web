@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card } from "@/components";
+import { Button, Card, AudioPlayer } from "@/components";
 import type {
   PrimingSession,
   PrimingSessionContent,
@@ -24,6 +24,7 @@ export default function SessionDetailPage() {
   const [questions, setQuestions] = useState<SessionQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
 
   const fetchSession = useCallback(async () => {
     try {
@@ -48,6 +49,56 @@ export default function SessionDetailPage() {
   useEffect(() => {
     fetchSession();
   }, [fetchSession]);
+
+  const pollAudioStatus = useCallback(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/courses/${courseId}/sessions/${sessionId}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const s = data.session;
+          if (s.audio_status === "ready" || s.audio_status === "failed") {
+            setSession(s);
+            setQuestions(data.questions);
+            setIsGeneratingAudio(false);
+            clearInterval(interval);
+          }
+        }
+      } catch {
+        // keep polling on network errors
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [courseId, sessionId]);
+
+  const handleGenerateAudio = async () => {
+    setIsGeneratingAudio(true);
+    try {
+      const res = await fetch(
+        `/api/courses/${courseId}/sessions/${sessionId}/generate-audio`,
+        { method: "POST" }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.cached) {
+          setSession((prev) =>
+            prev
+              ? { ...prev, audio_url: data.audio_url, audio_status: "ready" as const }
+              : prev
+          );
+          setIsGeneratingAudio(false);
+        } else {
+          pollAudioStatus();
+        }
+      } else {
+        setIsGeneratingAudio(false);
+      }
+    } catch {
+      setIsGeneratingAudio(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -116,6 +167,57 @@ export default function SessionDetailPage() {
           minute: "2-digit",
         })}
       </p>
+
+      {/* Audio section */}
+      {session.status === "completed" && (
+        <div className="mt-6">
+          {session.audio_status === "ready" && session.audio_url ? (
+            <AudioPlayer src={session.audio_url} />
+          ) : (
+            <div>
+              <Button
+                onClick={handleGenerateAudio}
+                variant="secondary"
+                isLoading={
+                  isGeneratingAudio || session.audio_status === "generating"
+                }
+                disabled={
+                  isGeneratingAudio || session.audio_status === "generating"
+                }
+                iconBefore={
+                  !isGeneratingAudio &&
+                  session.audio_status !== "generating" ? (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 18V5l12-2v13" />
+                      <circle cx="6" cy="18" r="3" />
+                      <circle cx="18" cy="16" r="3" />
+                    </svg>
+                  ) : undefined
+                }
+              >
+                {isGeneratingAudio || session.audio_status === "generating"
+                  ? "Generating audio..."
+                  : "Generate Audio Version"}
+              </Button>
+              {session.audio_status === "failed" && (
+                <p className="mt-2 text-sm text-red-500">
+                  Audio generation failed. Try again.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Content sections */}
       {content && (

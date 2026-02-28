@@ -135,6 +135,30 @@ describe("POST /api/enrollments", () => {
     expect(data.error).toMatch(/already enrolled/i);
   });
 
+  it("returns 500 when enrollment insert fails", async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: "s1" } }, error: null });
+
+    const profileChain = makeChain({ data: { role: "student" }, error: null });
+    const courseChain = makeChain({ data: { id: "c1" }, error: null });
+    const existingChain = makeChain({ data: null, error: null }); // not enrolled
+
+    const insertChain: Record<string, unknown> = {};
+    insertChain.insert = vi.fn().mockReturnValue(insertChain);
+    insertChain.select = vi.fn().mockReturnValue(insertChain);
+    insertChain.single = vi.fn().mockResolvedValue({ data: null, error: { message: "DB error" } });
+
+    mockFrom
+      .mockReturnValueOnce(profileChain)
+      .mockReturnValueOnce(courseChain)
+      .mockReturnValueOnce(existingChain)
+      .mockReturnValueOnce(insertChain);
+
+    const res = await POST(makeRequest({ invitationCode: "ABCDEF" }));
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toMatch(/failed to enroll/i);
+  });
+
   it("returns 201 with enrollment on success", async () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: "s1" } }, error: null });
 

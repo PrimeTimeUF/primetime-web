@@ -13,6 +13,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./tests/setup.ts"],
+    pool: "threads",
+    fileParallelism: false,
     include: ["src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",

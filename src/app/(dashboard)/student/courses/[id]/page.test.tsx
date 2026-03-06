@@ -134,7 +134,7 @@ describe("StudentCourseDetailPage", () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Completed")).toBeInTheDocument();
+      expect(screen.getByText("Completed", { selector: "span" })).toBeInTheDocument();
     });
   });
 
@@ -142,12 +142,10 @@ describe("StudentCourseDetailPage", () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("All")).toBeInTheDocument();
+      expect(screen.getByText("All", { selector: "button" })).toBeInTheDocument();
     });
-    expect(screen.getByText("Upcoming")).toBeInTheDocument();
-    // "Completed" appears both as badge and filter
-    const completedButtons = screen.getAllByText("Completed");
-    expect(completedButtons.length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Upcoming", { selector: "button" })).toBeInTheDocument();
+    expect(screen.getByText("Completed", { selector: "button" })).toBeInTheDocument();
   });
 
   it("filters to completed assignments", async () => {
@@ -174,7 +172,7 @@ describe("StudentCourseDetailPage", () => {
       expect(screen.getByText("Session 1")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Upcoming"));
+    await userEvent.click(screen.getByText("Upcoming", { selector: "button" }));
 
     expect(screen.getByText("Session 1")).toBeInTheDocument();
     expect(screen.queryByText("Session 2")).not.toBeInTheDocument();

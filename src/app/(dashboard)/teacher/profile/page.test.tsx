@@ -111,7 +111,7 @@ describe("TeacherProfilePage", () => {
     mockProfileFetch();
     render(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
@@ -134,7 +134,7 @@ describe("TeacherProfilePage", () => {
     mockProfileFetch();
     render(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByText("Change Password", { selector: "button" }));

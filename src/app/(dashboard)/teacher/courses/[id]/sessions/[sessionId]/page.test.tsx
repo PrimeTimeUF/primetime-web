@@ -117,7 +117,7 @@ describe("SessionDetailPage (Teacher)", () => {
     });
     expect(screen.getByText("Cells are the fundamental units of life.")).toBeInTheDocument();
     expect(screen.getByText("Essential Vocabulary")).toBeInTheDocument();
-    expect(screen.getByText("Nucleus")).toBeInTheDocument();
+    expect(screen.getAllByText("Nucleus")[0]).toBeInTheDocument();
     expect(screen.getByText("Control center of the cell")).toBeInTheDocument();
     expect(screen.getByText("Key Ideas")).toBeInTheDocument();
     expect(screen.getByText("Cell Theory")).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe("SessionDetailPage (Teacher)", () => {
     });
     expect(screen.getByText("What controls the cell?")).toBeInTheDocument();
     expect(screen.getByText("Membrane")).toBeInTheDocument();
-    expect(screen.getByText("Nucleus")).toBeInTheDocument();
+    expect(screen.getAllByText("Nucleus")[0]).toBeInTheDocument();
   });
 
   it("shows Generate Audio button when no audio exists", async () => {

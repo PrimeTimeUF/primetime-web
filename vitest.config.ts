@@ -14,6 +14,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./tests/setup.ts"],
     pool: "threads",
+    fileParallelism: false,
     include: ["src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",

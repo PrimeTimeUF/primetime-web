@@ -178,9 +178,6 @@ export default function SessionDetailPage() {
               <Button
                 onClick={handleGenerateAudio}
                 variant="secondary"
-                isLoading={
-                  isGeneratingAudio || session.audio_status === "generating"
-                }
                 disabled={
                   isGeneratingAudio || session.audio_status === "generating"
                 }

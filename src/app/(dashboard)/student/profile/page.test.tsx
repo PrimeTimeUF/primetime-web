@@ -73,7 +73,7 @@ describe("StudentProfilePage", () => {
       expect(screen.getByText("Profile & Settings")).toBeInTheDocument();
     });
     expect(screen.getByText("Profile Information")).toBeInTheDocument();
-    expect(screen.getByText("Change Password")).toBeInTheDocument();
+    expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     expect(screen.getByText("Account Information")).toBeInTheDocument();
   });
 
@@ -171,7 +171,7 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
@@ -183,7 +183,7 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
@@ -199,7 +199,7 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
@@ -215,7 +215,7 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password")).toBeInTheDocument();
+      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");

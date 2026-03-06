@@ -63,8 +63,8 @@ const mockSession = {
   completed_at: "2025-06-01T11:00:00Z",
   lecture_name: "Lecture 1",
   duration: 15 as const,
-  audio_url: null,
-  audio_status: "none" as const,
+  audio_url: null as string | null,
+  audio_status: "none" as "none" | "generating" | "ready" | "failed",
   material: { file_name: "notes.pdf" },
   course: { title: "Biology 101", course_code: "BIO101" },
 };

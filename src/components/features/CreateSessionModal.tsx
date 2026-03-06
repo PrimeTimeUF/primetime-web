@@ -70,7 +70,7 @@ export default function CreateSessionModal({
     } finally {
       setIsFetching(false);
     }
-  }, [courseId, selectedLecture]);
+  }, [courseId]);
 
   useEffect(() => {
     if (open) {

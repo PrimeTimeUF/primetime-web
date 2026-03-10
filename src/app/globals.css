@@ -105,8 +105,8 @@ body {
 /* Landing page hero styles */
 .dither-pattern {
   background-image:
-    repeating-linear-gradient(0deg, transparent 0px, transparent 1px, white 1px, white 2px),
-    repeating-linear-gradient(90deg, transparent 0px, transparent 1px, white 1px, white 2px);
+    repeating-linear-gradient(0deg, transparent 0px, transparent 1px, currentColor 1px, currentColor 2px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 1px, currentColor 1px, currentColor 2px);
   background-size: 3px 3px;
 }
 

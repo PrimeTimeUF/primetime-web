@@ -157,10 +157,8 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
   const cardBg   = isDark ? 'bg-white/[0.03]'   : 'bg-black/[0.02]';
   const line     = isDark ? 'bg-white/40'       : 'bg-black/25';
   const stroke   = isDark ? '#ffffff'           : '#000000';
-  const divider  = isDark ? 'border-white/10'   : 'border-black/10';
-
   // ── FEATURES ──────────────────────────────────────────────────────────────
-  const featReveal = useReveal();
+  const { ref: featRef, visible: featVisible } = useReveal();
   const spot = useSpotlight(isDark);
 
   const features = [
@@ -215,7 +213,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
   ];
 
   // ── HOW IT WORKS ─────────────────────────────────────────────────────────
-  const howReveal = useReveal();
+  const { ref: howRef, visible: howVisible } = useReveal();
 
   const steps = [
     { num: '01', title: 'UPLOAD', body: 'Teacher uploads PDF lecture materials to their course folder.' },
@@ -225,7 +223,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
   ];
 
   // ── AUDIENCE SPLIT ───────────────────────────────────────────────────────
-  const audienceReveal = useReveal();
+  const { ref: audienceRef, visible: audienceVisible } = useReveal();
 
   const teacherFeatures = [
     'Create courses & upload PDF materials',
@@ -244,7 +242,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
   ];
 
   // ── CTA ──────────────────────────────────────────────────────────────────
-  const ctaReveal = useReveal();
+  const { ref: ctaRef, visible: ctaVisible } = useReveal();
 
   return (
     <div className={`${bg} transition-colors duration-500`}>
@@ -261,8 +259,8 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
         />
 
         <div
-          ref={featReveal.ref}
-          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${featReveal.visible ? 'pt-visible' : ''}`}
+          ref={featRef}
+          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${featVisible ? 'pt-visible' : ''}`}
         >
           <SectionLabel num="002" label="CORE FUNCTIONALITY" textMid={textMid} line={line} />
 
@@ -282,7 +280,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 key={f.num}
                 onMouseMove={spot.onMouseMove}
                 onMouseLeave={spot.onMouseLeave}
-                className={`pt-reveal-sm ${featReveal.visible ? 'pt-visible' : ''} group relative overflow-hidden rounded-none border ${border} ${cardBg} p-6 cursor-default transition-all duration-300 hover:-translate-y-0.5 ${f.wide ? 'md:col-span-2 lg:col-span-1' : ''}`}
+                className={`pt-reveal-sm ${featVisible ? 'pt-visible' : ''} group relative overflow-hidden rounded-none border ${border} ${cardBg} p-6 cursor-default transition-all duration-300 hover:-translate-y-0.5 ${f.wide ? 'md:col-span-2 lg:col-span-1' : ''}`}
                 style={{ animationDelay: `${i * 80}ms` }}
               >
                 {/* Spotlight */}
@@ -318,8 +316,8 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
       {/* ── SECTION: HOW IT WORKS ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div
-          ref={howReveal.ref}
-          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${howReveal.visible ? 'pt-visible' : ''}`}
+          ref={howRef}
+          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${howVisible ? 'pt-visible' : ''}`}
         >
           <SectionLabel num="003" label="THE PROCESS" textMid={textMid} line={line} />
 
@@ -349,7 +347,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 )}
 
                 <div
-                  className={`pt-reveal-sm ${howReveal.visible ? 'pt-visible' : ''} relative z-10 p-6 lg:pr-8`}
+                  className={`pt-reveal-sm ${howVisible ? 'pt-visible' : ''} relative z-10 p-6 lg:pr-8`}
                   style={{ animationDelay: `${i * 120}ms` }}
                 >
                   {/* Step indicator */}
@@ -375,15 +373,15 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
         style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}
       >
         <div
-          ref={audienceReveal.ref}
-          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${audienceReveal.visible ? 'pt-visible' : ''}`}
+          ref={audienceRef}
+          className={`pt-reveal container mx-auto px-6 lg:px-16 py-20 lg:py-32 ${audienceVisible ? 'pt-visible' : ''}`}
         >
           <SectionLabel num="004" label="BUILT FOR BOTH SIDES" textMid={textMid} line={line} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-px" style={{ background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)' }}>
             {/* Teachers */}
             <div
-              className={`pt-reveal-sm ${audienceReveal.visible ? 'pt-visible' : ''} relative p-8 lg:p-12 ${bg} group`}
+              className={`pt-reveal-sm ${audienceVisible ? 'pt-visible' : ''} relative p-8 lg:p-12 ${bg} group`}
               style={{ animationDelay: '0ms' }}
             >
               <div className={`absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 ${isDark ? 'border-white/30' : 'border-black/25'}`} />
@@ -395,7 +393,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 {teacherFeatures.map((feat, i) => (
                   <li
                     key={i}
-                    className={`pt-reveal-sm ${audienceReveal.visible ? 'pt-visible' : ''} flex items-start gap-3`}
+                    className={`pt-reveal-sm ${audienceVisible ? 'pt-visible' : ''} flex items-start gap-3`}
                     style={{ animationDelay: `${100 + i * 70}ms` }}
                   >
                     <div className={`mt-1.5 w-1.5 h-1.5 border ${isDark ? 'border-white/50' : 'border-black/40'} flex-shrink-0`} />
@@ -415,7 +413,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
 
             {/* Students */}
             <div
-              className={`pt-reveal-sm ${audienceReveal.visible ? 'pt-visible' : ''} relative p-8 lg:p-12 ${bg}`}
+              className={`pt-reveal-sm ${audienceVisible ? 'pt-visible' : ''} relative p-8 lg:p-12 ${bg}`}
               style={{ animationDelay: '80ms' }}
             >
               <div className={`absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 ${isDark ? 'border-white/30' : 'border-black/25'}`} />
@@ -427,7 +425,7 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 {studentFeatures.map((feat, i) => (
                   <li
                     key={i}
-                    className={`pt-reveal-sm ${audienceReveal.visible ? 'pt-visible' : ''} flex items-start gap-3`}
+                    className={`pt-reveal-sm ${audienceVisible ? 'pt-visible' : ''} flex items-start gap-3`}
                     style={{ animationDelay: `${180 + i * 70}ms` }}
                   >
                     <div className={`mt-1.5 w-1.5 h-1.5 border ${isDark ? 'border-white/50' : 'border-black/40'} flex-shrink-0`} />
@@ -460,8 +458,8 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
         />
 
         <div
-          ref={ctaReveal.ref}
-          className={`pt-reveal container mx-auto px-6 lg:px-16 py-24 lg:py-40 text-center ${ctaReveal.visible ? 'pt-visible' : ''}`}
+          ref={ctaRef}
+          className={`pt-reveal container mx-auto px-6 lg:px-16 py-24 lg:py-40 text-center ${ctaVisible ? 'pt-visible' : ''}`}
         >
           {/* Decorative dots row */}
           <div className="flex justify-center gap-1 mb-8 opacity-30">

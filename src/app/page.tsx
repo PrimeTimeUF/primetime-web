@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import HeroAscii from '@/components/ui/hero-ascii';
 
-export default function Home() {
-  redirect('/login');
+export default function LandingPage() {
+  return <HeroAscii />;
 }

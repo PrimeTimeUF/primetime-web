@@ -27,8 +27,17 @@ function MoonIcon() {
   );
 }
 
-export default function HeroAscii() {
-  const [isDark, setIsDark] = useState(true);
+interface HeroAsciiProps {
+  isDark?: boolean;
+  onToggle?: () => void;
+}
+
+export default function HeroAscii({ isDark: isDarkProp, onToggle }: HeroAsciiProps = {}) {
+  const [isDarkInternal, setIsDarkInternal] = useState(true);
+  const isDark = isDarkProp !== undefined ? isDarkProp : isDarkInternal;
+  const setIsDark = onToggle
+    ? (_val: boolean) => onToggle()
+    : (val: boolean) => setIsDarkInternal(val);
 
   useEffect(() => {
     const embedScript = document.createElement('script');
@@ -158,7 +167,7 @@ export default function HeroAscii() {
 
             {/* Theme toggle */}
             <button
-              onClick={() => setIsDark(d => !d)}
+              onClick={() => setIsDark(!isDark)}
               className={`flex items-center justify-center w-8 h-8 border ${borderDim} ${text} hover:${isDark ? 'bg-white hover:text-black' : 'bg-black hover:text-white'} transition-all duration-200 font-mono`}
               aria-label="Toggle light/dark mode"
             >

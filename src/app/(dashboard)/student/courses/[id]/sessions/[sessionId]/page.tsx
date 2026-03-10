@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card } from "@/components";
+import { Button, Card, AudioPlayer } from "@/components";
 import type {
   PrimingSession,
   PrimingSessionContent,
@@ -212,6 +212,13 @@ export default function StudentSessionPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Audio Player (reading phase only, when audio is ready) ── */}
+      {phase === "reading" && session.audio_status === "ready" && session.audio_url && (
+        <div className="mt-6">
+          <AudioPlayer src={session.audio_url} />
+        </div>
+      )}
 
       {/* ── Reading Phase ── */}
       {phase === "reading" && content && (

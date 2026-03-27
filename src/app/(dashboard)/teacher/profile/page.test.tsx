@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import TeacherProfilePage from "./page";
+import { DashboardThemeContext } from "../dashboard-theme-context";
 
 global.fetch = vi.fn();
 
@@ -27,6 +28,14 @@ function mockProfileFetch(profile = mockProfile) {
   } as Response);
 }
 
+function renderWithTheme(ui: React.ReactElement) {
+  return render(
+    <DashboardThemeContext.Provider value={{ isDark: true, toggle: () => {} }}>
+      {ui}
+    </DashboardThemeContext.Provider>
+  );
+}
+
 describe("TeacherProfilePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,8 +43,8 @@ describe("TeacherProfilePage", () => {
 
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
-    render(<TeacherProfilePage />);
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    renderWithTheme(<TeacherProfilePage />);
+    expect(screen.getByText("LOADING PROFILE...")).toBeInTheDocument();
   });
 
   it("redirects to login on 401", async () => {
@@ -44,7 +53,7 @@ describe("TeacherProfilePage", () => {
       status: 401,
       json: async () => ({}),
     } as Response);
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/login");
     });
@@ -52,17 +61,17 @@ describe("TeacherProfilePage", () => {
 
   it("shows error state on fetch failure", async () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("fail"));
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Error loading profile")).toBeInTheDocument();
+      expect(screen.getByText("ERROR LOADING PROFILE")).toBeInTheDocument();
     });
   });
 
   it("renders profile data after loading", async () => {
     mockProfileFetch();
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Profile & Settings")).toBeInTheDocument();
+      expect(screen.getByText("PROFILE")).toBeInTheDocument();
     });
     expect(screen.getByDisplayValue("teacher@test.com")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Dr. Smith")).toBeInTheDocument();
@@ -71,7 +80,7 @@ describe("TeacherProfilePage", () => {
 
   it("shows initials DS for Dr. Smith", async () => {
     mockProfileFetch();
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
       expect(screen.getByText("DS")).toBeInTheDocument();
     });
@@ -79,7 +88,7 @@ describe("TeacherProfilePage", () => {
 
   it("saves profile successfully", async () => {
     mockProfileFetch();
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
       expect(screen.getByDisplayValue("Dr. Smith")).toBeInTheDocument();
     });
@@ -93,7 +102,7 @@ describe("TeacherProfilePage", () => {
       json: async () => ({ profile: { ...mockProfile, full_name: "Dr. Jane Smith" } }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Save Changes"));
+    await userEvent.click(screen.getByText("SAVE CHANGES"));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -109,13 +118,13 @@ describe("TeacherProfilePage", () => {
 
   it("changes password successfully", async () => {
     mockProfileFetch();
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
-    await userEvent.type(screen.getByPlaceholderText(/Enter new password/), "newpassword");
+    await userEvent.type(screen.getByPlaceholderText("Min 6 characters"), "newpassword");
     await userEvent.type(screen.getByPlaceholderText("Confirm new password"), "newpassword");
 
     vi.mocked(global.fetch).mockResolvedValueOnce({
@@ -123,7 +132,7 @@ describe("TeacherProfilePage", () => {
       json: async () => ({}),
     } as Response);
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/i }));
 
     await waitFor(() => {
       expect(screen.getByText("Password changed successfully!")).toBeInTheDocument();
@@ -132,12 +141,12 @@ describe("TeacherProfilePage", () => {
 
   it("validates password fields", async () => {
     mockProfileFetch();
-    render(<TeacherProfilePage />);
+    renderWithTheme(<TeacherProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/i }));
     expect(screen.getByText("All password fields are required")).toBeInTheDocument();
   });
 });

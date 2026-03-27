@@ -4,17 +4,29 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname, useRouter } from "next/navigation";
+import { DashboardThemeContext } from "./dashboard-theme-context";
+import { SunIcon, MoonIcon } from "@/components/ui/auth-primitives";
+import { GridBackground, DashboardFooter, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface TeacherLayoutProps {
   children: React.ReactNode;
 }
 
 export default function TeacherLayout({ children }: Readonly<TeacherLayoutProps>) {
+  const [isDark, setIsDark] = useState(true);
+  const t = themeTokens(isDark);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
-      <main className="mx-auto max-w-[1200px] px-6 py-8">{children}</main>
-    </div>
+    <DashboardThemeContext.Provider value={{ isDark, toggle: () => setIsDark((v) => !v) }}>
+      <div className={`relative min-h-screen transition-colors duration-500 ${t.bg}`}>
+        <GridBackground isDark={isDark} />
+        <DashboardHeader isDark={isDark} onToggle={() => setIsDark((v) => !v)} />
+        <main className="relative z-10 mx-auto max-w-[1200px] px-6 py-8 pb-16 pt-24">
+          {children}
+        </main>
+        <DashboardFooter isDark={isDark} />
+      </div>
+    </DashboardThemeContext.Provider>
   );
 }
 
@@ -22,24 +34,39 @@ export default function TeacherLayout({ children }: Readonly<TeacherLayoutProps>
 /*  Dashboard Header                                                   */
 /* ------------------------------------------------------------------ */
 
-function DashboardHeader() {
+interface DashboardHeaderProps {
+  isDark: boolean;
+  onToggle: () => void;
+}
+
+function DashboardHeader({ isDark, onToggle }: Readonly<DashboardHeaderProps>) {
+  const t = themeTokens(isDark);
+
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6">
+    <header className={`sticky top-0 z-50 border-b ${t.border} ${isDark ? 'bg-black/80' : 'bg-white/80'} backdrop-blur-sm transition-colors duration-500`}>
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         {/* Left: Logo + Nav */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6 lg:gap-8">
           <Link
             href="/teacher"
-            className="text-xl font-bold tracking-tight text-black"
+            className={`font-mono ${t.text} text-xl lg:text-2xl font-bold tracking-widest italic transform -skew-x-12 transition-colors duration-500`}
           >
-            PrimeTime
+            PRIMETIME
           </Link>
-          <SidebarNav />
+          <div className={`h-4 w-px ${t.divider} hidden lg:block`} />
+          <SidebarNav isDark={isDark} />
         </div>
 
-        {/* Right: User Menu */}
-        <div className="flex items-center gap-4">
-          <UserMenu />
+        {/* Right: Theme toggle + User Menu */}
+        <div className="flex items-center gap-3 lg:gap-5">
+          <button
+            onClick={onToggle}
+            className={`flex items-center justify-center w-8 h-8 border ${t.borderDim} ${t.text} transition-all duration-200 font-mono`}
+            aria-label="Toggle light/dark mode"
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+          <UserMenu isDark={isDark} />
         </div>
       </div>
     </header>
@@ -47,16 +74,17 @@ function DashboardHeader() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Sidebar Nav (horizontal in header)                                 */
+/*  Sidebar Nav                                                        */
 /* ------------------------------------------------------------------ */
 
 const NAV_ITEMS = [
-  { label: "Courses", href: "/teacher" },
-  { label: "Analytics", href: "/teacher/analytics" },
+  { label: "COURSES", href: "/teacher" },
+  { label: "ANALYTICS", href: "/teacher/analytics" },
 ] as const;
 
-function SidebarNav() {
+function SidebarNav({ isDark }: Readonly<{ isDark: boolean }>) {
   const pathname = usePathname();
+  const t = themeTokens(isDark);
 
   return (
     <nav className="flex items-center gap-1">
@@ -70,13 +98,14 @@ function SidebarNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-gray-100 text-black"
-                : "text-gray-500 hover:bg-gray-100 hover:text-black"
+            className={`relative font-mono text-xs tracking-[0.2em] px-3 py-2 transition-colors duration-200 ${
+              isActive ? t.text : `${t.textMid} ${isDark ? 'hover:text-white' : 'hover:text-black'}`
             }`}
           >
             {item.label}
+            {isActive && (
+              <div className={`absolute bottom-0 left-1 right-1 h-px ${isDark ? 'bg-white' : 'bg-black'}`} />
+            )}
           </Link>
         );
       })}
@@ -85,15 +114,16 @@ function SidebarNav() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  User Menu (dropdown)                                               */
+/*  User Menu                                                          */
 /* ------------------------------------------------------------------ */
 
-function UserMenu() {
+function UserMenu({ isDark }: Readonly<{ isDark: boolean }>) {
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState<string | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const t = themeTokens(isDark);
 
   async function handleLogout() {
     setOpen(false);
@@ -101,7 +131,6 @@ function UserMenu() {
     router.push("/login");
   }
 
-  // Fetch the authenticated user's profile
   useEffect(() => {
     async function loadUser() {
       const supabase = createClient();
@@ -118,17 +147,10 @@ function UserMenu() {
     loadUser();
   }, []);
 
-  // Derive initials from the name (up to 2 characters)
   const initials = fullName
-    ? fullName
-        .split(" ")
-        .map((part) => part[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "…";
+    ? fullName.split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase()
+    : "...";
 
-  // Close on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -139,7 +161,6 @@ function UserMenu() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
@@ -154,36 +175,25 @@ function UserMenu() {
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-haspopup="true"
-        className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100"
+        className={`flex items-center gap-3 px-3 py-2 transition-colors ${isDark ? 'hover:bg-white/[0.05]' : 'hover:bg-black/[0.03]'}`}
       >
         {/* Avatar */}
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold text-white overflow-hidden">
+        <div className={`flex h-8 w-8 items-center justify-center border ${t.borderDim} font-mono text-xs font-bold ${t.text} overflow-hidden`}>
           {profileImageUrl ? (
-            <img
-              src={profileImageUrl}
-              alt={fullName ?? "User"}
-              className="w-full h-full object-cover"
-            />
+            <img src={profileImageUrl} alt={fullName ?? "User"} className="w-full h-full object-cover" />
           ) : (
             initials
           )}
         </div>
-        <div className="text-left">
-          <div className="text-sm font-medium text-black">{fullName ?? "Loading…"}</div>
-          <div className="text-xs text-gray-500">Teacher</div>
+        <div className="hidden lg:block text-left">
+          <div className={`font-mono text-xs ${t.text} tracking-wider`}>{fullName ?? "LOADING..."}</div>
+          <div className={`font-mono text-[10px] ${t.textDim} tracking-[0.2em]`}>TEACHER</div>
         </div>
         {/* Chevron */}
         <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+          className={`${t.textMid} transition-transform ${open ? "rotate-180" : ""}`}
         >
           <path d="M4 6l4 4 4-4" />
         </svg>
@@ -191,66 +201,38 @@ function UserMenu() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] min-w-[200px] rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
-          <DropdownItem
+        <div className={`absolute right-0 top-[calc(100%+0.5rem)] min-w-[200px] border ${t.border} ${isDark ? 'bg-black' : 'bg-white'} p-2 z-50`}>
+          <Link
             href="/teacher/profile"
-            icon={
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            onClick={() => setOpen(false)}
+            className={`flex w-full items-center gap-3 px-4 py-3 font-mono text-xs tracking-wider ${t.text} transition-colors ${isDark ? 'hover:bg-white/[0.05]' : 'hover:bg-black/[0.03]'}`}
+          >
+            <span className={`h-[16px] w-[16px] ${t.textMid}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-            }
-            label="Profile & Settings"
-            onClick={() => setOpen(false)}
-          />
+            </span>
+            PROFILE
+          </Link>
 
-          {/* Divider */}
-          <div className="my-2 h-px bg-gray-100" />
+          <div className={`my-2 h-px ${t.divider}`} />
 
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-md px-4 py-3 text-sm text-red-500 transition-colors hover:bg-gray-100"
+            className={`flex w-full items-center gap-3 px-4 py-3 font-mono text-xs tracking-wider transition-colors ${isDark ? 'text-red-400 hover:bg-red-500/10' : 'text-red-600 hover:bg-red-50'}`}
           >
-            <span className="h-[18px] w-[18px] text-red-500">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <span className={`h-[16px] w-[16px] ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
             </span>
-            Log out
+            LOG OUT
           </button>
         </div>
       )}
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Dropdown Item                                                      */
-/* ------------------------------------------------------------------ */
-
-interface DropdownItemProps {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-  danger?: boolean;
-  onClick?: () => void;
-}
-
-function DropdownItem({ href, icon, label, danger, onClick }: Readonly<DropdownItemProps>) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-md px-4 py-3 text-sm transition-colors hover:bg-gray-100 ${
-        danger ? "text-red-500" : "text-black"
-      }`}
-    >
-      <span className={`h-[18px] w-[18px] ${danger ? "text-red-500" : "text-gray-500"}`}>
-        {icon}
-      </span>
-      {label}
-    </Link>
   );
 }

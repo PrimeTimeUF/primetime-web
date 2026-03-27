@@ -118,9 +118,11 @@ export default function TeacherCourseDetailPage() {
             </h1>
             <div className={`mt-1 flex items-center gap-3 font-mono text-xs ${t.textMid} tracking-wider`}>
               <span>{course.course_code}</span>
-              <span className={`${isDark ? 'text-white/30' : 'text-black/20'}`}>//</span>
+              <span className={`${isDark ? 'text-white/30' : 'text-black/20'}`}>{"//"}
+</span>
               <span>{course.semester}</span>
-              <span className={`${isDark ? 'text-white/30' : 'text-black/20'}`}>//</span>
+              <span className={`${isDark ? 'text-white/30' : 'text-black/20'}`}>{"//"}
+</span>
               <span>{studentCount} STUDENT{studentCount !== 1 ? "S" : ""}</span>
             </div>
           </div>
@@ -340,7 +342,7 @@ function MaterialsTab({ courseId, sessions, isDark }: Readonly<MaterialsTabProps
                       <div className="flex-1 min-w-0">
                         <p className={`font-mono text-xs font-medium ${t.text} truncate tracking-wider`}>{material.file_name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <p className={`font-mono text-[10px] ${t.textDim}`}>{formatFileSize(material.file_size)} // {formatDate(material.uploaded_at)}</p>
+                          <p className={`font-mono text-[10px] ${t.textDim}`}>{formatFileSize(material.file_size)} {"//"}  {formatDate(material.uploaded_at)}</p>
                           {session && <SessionStatusBadge status={session.status} isDark={isDark} />}
                         </div>
                       </div>
@@ -392,7 +394,6 @@ function StudentsTab({ courseId, invitationCode, isDark }: Readonly<StudentsTabP
     } catch (err) { console.error("Failed to fetch students:", err); } finally { setIsLoading(false); }
   }, [courseId]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data fetch
   useEffect(() => { fetchStudents(); }, [fetchStudents]);
 
   const handleCopy = async () => {
@@ -551,7 +552,7 @@ function SessionsTab({ courseId, sessions, isLoading, onRefresh, isDark }: Reado
                 <div className="flex-1 min-w-0">
                   <p className={`font-mono text-xs font-medium ${t.text} truncate tracking-wider`}>{session.title?.toUpperCase() || "GENERATING SESSION..."}</p>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <p className={`font-mono text-[10px] ${t.textDim} truncate`}>{sessionLabel} // {formatDate(session.created_at)}</p>
+                    <p className={`font-mono text-[10px] ${t.textDim} truncate`}>{sessionLabel} {"//"}  {formatDate(session.created_at)}</p>
                     {session.duration && <BrutalistBadge isDark={isDark} variant="info">{session.duration} MIN</BrutalistBadge>}
                     <SessionStatusBadge status={session.status} isDark={isDark} />
                     {assignment && (

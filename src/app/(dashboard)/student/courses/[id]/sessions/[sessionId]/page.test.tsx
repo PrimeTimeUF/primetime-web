@@ -108,6 +108,7 @@ describe("StudentSessionPage", () => {
       expect(screen.getByText("Session not found")).toBeInTheDocument();
     });
     expect(screen.getByText("BACK TO COURSE")).toBeInTheDocument();
+    expect(screen.getByText("← BACK TO COURSE")).toBeInTheDocument();
   });
 
   it("renders session header", async () => {
@@ -148,6 +149,7 @@ describe("StudentSessionPage", () => {
     render(<StudentSessionPage />);
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
     });
   });
 
@@ -159,6 +161,10 @@ describe("StudentSessionPage", () => {
     });
 
     await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
 
     expect(screen.getByText("CHECK YOUR UNDERSTANDING")).toBeInTheDocument();
     expect(screen.getByText("What is the basic unit of life?")).toBeInTheDocument();
@@ -172,6 +178,9 @@ describe("StudentSessionPage", () => {
       expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
 
     expect(screen.getByText("Atom")).toBeInTheDocument();
     expect(screen.getByText("Cell", { selector: "span" })).toBeInTheDocument();
@@ -188,6 +197,11 @@ describe("StudentSessionPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     expect(screen.getByRole("button", { name: /SUBMIT QUIZ/ })).toBeDisabled();
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+
+    expect(screen.getByText(/SUBMIT QUIZ/)).toBeDisabled();
   });
 
   it("submits quiz and shows results", async () => {
@@ -197,6 +211,9 @@ describe("StudentSessionPage", () => {
       expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
 
     // Select answer for Q1 (Cell = option b)
     const cellOption = screen.getByText("Cell", { selector: "span" });
@@ -220,6 +237,7 @@ describe("StudentSessionPage", () => {
     } as Response);
 
     await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
+    await userEvent.click(screen.getByText(/SUBMIT QUIZ/));
 
     await waitFor(() => {
       expect(screen.getByText("2/2")).toBeInTheDocument();
@@ -258,6 +276,9 @@ describe("StudentSessionPage", () => {
       expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
     await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
+      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
 
     // Select answers
     await userEvent.click(screen.getByText("Atom").closest("button")!);
@@ -269,6 +290,7 @@ describe("StudentSessionPage", () => {
     } as Response);
 
     await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
+    await userEvent.click(screen.getByText(/SUBMIT QUIZ/));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(

@@ -4,8 +4,9 @@ import StudentDashboardPage from "./page";
 
 // --- Mocks ---
 const mockPush = vi.fn();
+const mockRouter = { push: mockPush };
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => mockRouter,
 }));
 
 const mockGetSession = vi.fn();
@@ -37,6 +38,8 @@ vi.mock("@/components", () => ({
         <button onClick={onEnrolled}>Simulate Enrolled</button>
       </div>
     ) : null,
+  AnalyticsStatsBar: () => <div data-testid="analytics-stats-bar" />,
+  SessionHistoryTable: () => <div data-testid="session-history-table" />,
 }));
 
 // --- Test Helpers ---
@@ -82,7 +85,7 @@ describe("StudentDashboardPage", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
 
     render(<StudentDashboardPage />);
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING...")).toBeInTheDocument();
   });
 
   it("redirects to /login when session does not exist", async () => {
@@ -111,7 +114,7 @@ describe("StudentDashboardPage", () => {
 
     render(<StudentDashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText("Error loading user data")).toBeInTheDocument();
+      expect(screen.getByText("ERROR LOADING USER DATA")).toBeInTheDocument();
     });
   });
 
@@ -129,7 +132,7 @@ describe("StudentDashboardPage", () => {
 
     render(<StudentDashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText("No courses yet")).toBeInTheDocument();
+      expect(screen.getByText("NO COURSES YET")).toBeInTheDocument();
     });
   });
 
@@ -166,10 +169,10 @@ describe("StudentDashboardPage", () => {
 
     render(<StudentDashboardPage />);
     await waitFor(() =>
-      expect(screen.getByText("No courses yet")).toBeInTheDocument()
+      expect(screen.getByText("NO COURSES YET")).toBeInTheDocument()
     );
 
-    await userEvent.click(screen.getByRole("button", { name: /Enroll in Course/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^ENROLL$/i }));
     expect(screen.getByTestId("enroll-course-modal")).toBeInTheDocument();
   });
 
@@ -178,11 +181,11 @@ describe("StudentDashboardPage", () => {
 
     render(<StudentDashboardPage />);
     await waitFor(() =>
-      expect(screen.getByText("No courses yet")).toBeInTheDocument()
+      expect(screen.getByText("NO COURSES YET")).toBeInTheDocument()
     );
 
     await userEvent.click(
-      screen.getByRole("button", { name: "Enroll in Your First Course" })
+      screen.getByRole("button", { name: /ENROLL IN YOUR FIRST COURSE/i })
     );
     expect(screen.getByTestId("enroll-course-modal")).toBeInTheDocument();
   });
@@ -199,21 +202,33 @@ describe("StudentDashboardPage", () => {
     });
     mockSingle.mockResolvedValue({ data: mockUser, error: null });
     vi.mocked(global.fetch)
+      // Initial enrollments fetch
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ enrollments: [] }),
       } as Response)
+      // Analytics fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ summary: {}, results: [] }),
+      } as Response)
+      // Refetched enrollments after onEnrolled
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ enrollments: [updatedEnrollment] }),
+      } as Response)
+      // Analytics refetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ summary: {}, results: [] }),
       } as Response);
 
     render(<StudentDashboardPage />);
     await waitFor(() =>
-      expect(screen.getByText("No courses yet")).toBeInTheDocument()
+      expect(screen.getByText("NO COURSES YET")).toBeInTheDocument()
     );
 
-    await userEvent.click(screen.getByRole("button", { name: /Enroll in Course/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^ENROLL$/i }));
     await userEvent.click(
       screen.getByRole("button", { name: "Simulate Enrolled" })
     );

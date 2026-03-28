@@ -75,7 +75,7 @@ describe("StudentCourseDetailPage", () => {
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
     render(<StudentCourseDetailPage />);
-    expect(screen.getByText("Loading course...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING COURSE...")).toBeInTheDocument();
   });
 
   it("shows error state with back link", async () => {
@@ -91,7 +91,7 @@ describe("StudentCourseDetailPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Not found")).toBeInTheDocument();
     });
-    expect(screen.getByText("Back to Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("BACK TO DASHBOARD")).toBeInTheDocument();
   });
 
   it("renders course header with title and details", async () => {
@@ -134,7 +134,11 @@ describe("StudentCourseDetailPage", () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Completed", { selector: "span" })).toBeInTheDocument();
+      // Badge and tab both render "COMPLETED" spans
+      const completedSpans = screen.getAllByText("COMPLETED");
+      // At least one should be the BrutalistBadge (inline-flex class)
+      const badge = completedSpans.find((el) => el.classList.contains("inline-flex"));
+      expect(badge).toBeTruthy();
     });
   });
 
@@ -142,10 +146,10 @@ describe("StudentCourseDetailPage", () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("All", { selector: "button" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /ALL/ })).toBeInTheDocument();
     });
-    expect(screen.getByText("Upcoming", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("Completed", { selector: "button" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /UPCOMING/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /COMPLETED/ })).toBeInTheDocument();
   });
 
   it("filters to completed assignments", async () => {
@@ -156,9 +160,7 @@ describe("StudentCourseDetailPage", () => {
     });
 
     // Find the Completed filter button (not the badge)
-    const filterButtons = screen.getAllByText("Completed");
-    const filterBtn = filterButtons.find((el) => el.tagName === "BUTTON")!;
-    await userEvent.click(filterBtn);
+    await userEvent.click(screen.getByRole("button", { name: /COMPLETED/ }));
 
     // Session 2 is completed, Session 1 is not
     expect(screen.getByText("Session 2")).toBeInTheDocument();
@@ -172,7 +174,7 @@ describe("StudentCourseDetailPage", () => {
       expect(screen.getByText("Session 1")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Upcoming", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /UPCOMING/ }));
 
     expect(screen.getByText("Session 1")).toBeInTheDocument();
     expect(screen.queryByText("Session 2")).not.toBeInTheDocument();
@@ -196,15 +198,15 @@ describe("StudentCourseDetailPage", () => {
       expect(screen.getByText("Session 2")).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Upcoming"));
-    expect(screen.getByText("No upcoming sessions")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /UPCOMING/ }));
+    expect(screen.getByText("NO UPCOMING SESSIONS")).toBeInTheDocument();
   });
 
   it("renders progress sidebar", async () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Your Progress")).toBeInTheDocument();
+      expect(screen.getByText("YOUR PROGRESS")).toBeInTheDocument();
     });
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("1/2")).toBeInTheDocument();

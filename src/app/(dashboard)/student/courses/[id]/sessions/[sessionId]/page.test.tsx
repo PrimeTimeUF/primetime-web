@@ -95,7 +95,7 @@ describe("StudentSessionPage", () => {
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
     render(<StudentSessionPage />);
-    expect(screen.getByText("Loading session...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING SESSION...")).toBeInTheDocument();
   });
 
   it("shows error state", async () => {
@@ -107,7 +107,7 @@ describe("StudentSessionPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Session not found")).toBeInTheDocument();
     });
-    expect(screen.getByText("Back to Course")).toBeInTheDocument();
+    expect(screen.getByText("BACK TO COURSE")).toBeInTheDocument();
   });
 
   it("renders session header", async () => {
@@ -147,7 +147,7 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
   });
 
@@ -155,12 +155,12 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Start Quiz (2 questions)"));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
-    expect(screen.getByText("Check Your Understanding")).toBeInTheDocument();
+    expect(screen.getByText("CHECK YOUR UNDERSTANDING")).toBeInTheDocument();
     expect(screen.getByText("What is the basic unit of life?")).toBeInTheDocument();
     expect(screen.getByText("What is mitosis?")).toBeInTheDocument();
   });
@@ -169,9 +169,9 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText("Start Quiz (2 questions)"));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     expect(screen.getByText("Atom")).toBeInTheDocument();
     expect(screen.getByText("Cell", { selector: "span" })).toBeInTheDocument();
@@ -183,20 +183,20 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText("Start Quiz (2 questions)"));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
-    expect(screen.getByText("Submit Quiz")).toBeDisabled();
+    expect(screen.getByRole("button", { name: /SUBMIT QUIZ/ })).toBeDisabled();
   });
 
   it("submits quiz and shows results", async () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText("Start Quiz (2 questions)"));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     // Select answer for Q1 (Cell = option b)
     const cellOption = screen.getByText("Cell", { selector: "span" });
@@ -219,12 +219,12 @@ describe("StudentSessionPage", () => {
       }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Submit Quiz"));
+    await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
 
     await waitFor(() => {
       expect(screen.getByText("2/2")).toBeInTheDocument();
     });
-    expect(screen.getByText("You scored 100%")).toBeInTheDocument();
+    expect(screen.getByText("YOU SCORED 100%")).toBeInTheDocument();
   });
 
   it("renders in review mode with existing results", async () => {
@@ -248,16 +248,16 @@ describe("StudentSessionPage", () => {
     await waitFor(() => {
       expect(screen.getByText("1/2")).toBeInTheDocument();
     });
-    expect(screen.getByText("You scored 50%")).toBeInTheDocument();
+    expect(screen.getByText("YOU SCORED 50%")).toBeInTheDocument();
   });
 
   it("posts quiz answers to correct endpoint", async () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText("Start Quiz (2 questions)")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText("Start Quiz (2 questions)"));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     // Select answers
     await userEvent.click(screen.getByText("Atom").closest("button")!);
@@ -268,7 +268,7 @@ describe("StudentSessionPage", () => {
       json: async () => ({ score: 0, total_questions: 2, results: [] }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Submit Quiz"));
+    await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(

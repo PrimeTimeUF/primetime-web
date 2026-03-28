@@ -35,7 +35,7 @@ describe("StudentProfilePage", () => {
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
     render(<StudentProfilePage />);
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING...")).toBeInTheDocument();
   });
 
   it("fetches profile on mount", async () => {
@@ -62,7 +62,7 @@ describe("StudentProfilePage", () => {
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"));
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Error loading profile")).toBeInTheDocument();
+      expect(screen.getByText("ERROR LOADING PROFILE")).toBeInTheDocument();
     });
   });
 
@@ -70,11 +70,11 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Profile & Settings")).toBeInTheDocument();
+      expect(screen.getByText("PROFILE & SETTINGS")).toBeInTheDocument();
     });
-    expect(screen.getByText("Profile Information")).toBeInTheDocument();
-    expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
-    expect(screen.getByText("Account Information")).toBeInTheDocument();
+    expect(screen.getByText("PROFILE INFORMATION")).toBeInTheDocument();
+    expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
+    expect(screen.getByText("ACCOUNT INFORMATION")).toBeInTheDocument();
   });
 
   it("displays email as disabled input", async () => {
@@ -92,8 +92,8 @@ describe("StudentProfilePage", () => {
     await waitFor(() => {
       expect(screen.getByText("student")).toBeInTheDocument();
     });
-    expect(screen.getByText("Account Type")).toBeInTheDocument();
-    expect(screen.getByText("Member Since")).toBeInTheDocument();
+    expect(screen.getByText("ACCOUNT TYPE")).toBeInTheDocument();
+    expect(screen.getByText("MEMBER SINCE")).toBeInTheDocument();
   });
 
   it("shows initials when no profile image", async () => {
@@ -114,7 +114,7 @@ describe("StudentProfilePage", () => {
     const nameInput = screen.getByDisplayValue("Jane Student");
     await userEvent.clear(nameInput);
 
-    await userEvent.click(screen.getByText("Save Changes"));
+    await userEvent.click(screen.getByRole("button", { name: /SAVE CHANGES/ }));
     expect(screen.getByText("Full name is required")).toBeInTheDocument();
   });
 
@@ -134,7 +134,7 @@ describe("StudentProfilePage", () => {
       json: async () => ({ profile: { ...mockProfile, full_name: "Jane Updated" } }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Save Changes"));
+    await userEvent.click(screen.getByRole("button", { name: /SAVE CHANGES/ }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -160,7 +160,7 @@ describe("StudentProfilePage", () => {
       json: async () => ({ error: "Update failed" }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Save Changes"));
+    await userEvent.click(screen.getByRole("button", { name: /SAVE CHANGES/ }));
 
     await waitFor(() => {
       expect(screen.getByText("Update failed")).toBeInTheDocument();
@@ -171,10 +171,10 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/ }));
 
     expect(screen.getByText("All password fields are required")).toBeInTheDocument();
   });
@@ -183,14 +183,14 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
     await userEvent.type(screen.getByPlaceholderText(/Enter new password/), "short");
     await userEvent.type(screen.getByPlaceholderText("Confirm new password"), "short");
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/ }));
 
     expect(screen.getByText("New password must be at least 6 characters long")).toBeInTheDocument();
   });
@@ -199,14 +199,14 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
     await userEvent.type(screen.getByPlaceholderText(/Enter new password/), "newpassword");
     await userEvent.type(screen.getByPlaceholderText("Confirm new password"), "different");
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/ }));
 
     expect(screen.getByText("New passwords do not match")).toBeInTheDocument();
   });
@@ -215,7 +215,7 @@ describe("StudentProfilePage", () => {
     mockProfileFetch();
     render(<StudentProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText("Change Password", { selector: "h2" })).toBeInTheDocument();
+      expect(screen.getByText("CHANGE PASSWORD", { selector: "h2" })).toBeInTheDocument();
     });
 
     await userEvent.type(screen.getByPlaceholderText("Enter current password"), "oldpass");
@@ -227,7 +227,7 @@ describe("StudentProfilePage", () => {
       json: async () => ({}),
     } as Response);
 
-    await userEvent.click(screen.getByText("Change Password", { selector: "button" }));
+    await userEvent.click(screen.getByRole("button", { name: /CHANGE PASSWORD/ }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(

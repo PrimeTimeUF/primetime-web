@@ -1,16 +1,18 @@
 "use client";
 
 import type { StudentSessionResult } from "@/lib/types/student-analytics";
+import { BrutalistCard, BrutalistBadge, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface SessionHistoryTableProps {
   results: StudentSessionResult[];
+  isDark?: boolean;
 }
 
-function scoreBadgeClasses(score: number, total: number): string {
+function scoreBadgeVariant(score: number, total: number): "success" | "warning" | "error" {
   const pct = (score / total) * 100;
-  if (pct >= 80) return "bg-green-50 text-green-700";
-  if (pct >= 60) return "bg-yellow-50 text-yellow-700";
-  return "bg-red-50 text-red-700";
+  if (pct >= 80) return "success";
+  if (pct >= 60) return "warning";
+  return "error";
 }
 
 function formatDate(dateString: string): string {
@@ -21,12 +23,14 @@ function formatDate(dateString: string): string {
   });
 }
 
-export default function SessionHistoryTable({ results }: SessionHistoryTableProps) {
+export default function SessionHistoryTable({ results, isDark = true }: SessionHistoryTableProps) {
+  const t = themeTokens(isDark);
+
   if (results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-6 bg-white border border-gray-200 rounded-xl">
+      <BrutalistCard isDark={isDark} className="flex flex-col items-center justify-center py-12 px-6">
         <svg
-          className="w-12 h-12 text-gray-300 mb-4"
+          className={`w-12 h-12 ${t.textDim} mb-4`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -38,52 +42,53 @@ export default function SessionHistoryTable({ results }: SessionHistoryTableProp
           <rect x="9" y="3" width="6" height="4" rx="1" />
           <path d="M9 14l2 2 4-4" />
         </svg>
-        <p className="text-sm text-gray-500">No sessions completed yet</p>
-      </div>
+        <p className={`font-mono text-sm ${t.textMid}`}>NO SESSIONS COMPLETED YET</p>
+      </BrutalistCard>
     );
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+    <BrutalistCard isDark={isDark} className="!p-0 overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-gray-200">
-            <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Session
+          <tr className={`border-b ${t.border}`}>
+            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+              SESSION
             </th>
-            <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Score
+            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+              SCORE
             </th>
-            <th className="px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Date
+            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+              DATE
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
-          {results.map((result) => (
-            <tr key={result.id} className="hover:bg-gray-50 transition-colors">
+        <tbody>
+          {results.map((result, i) => (
+            <tr
+              key={result.id}
+              className={`${i < results.length - 1 ? `border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}` : ''} transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-black/[0.02]'}`}
+            >
               <td className="px-5 py-4">
-                <div className="text-sm font-medium text-black">
+                <div className={`font-mono text-sm font-medium ${t.text}`}>
                   {result.session.title ?? "Untitled Session"}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className={`font-mono text-xs ${t.textDim}`}>
                   {result.course.course_code}
                 </div>
               </td>
               <td className="px-5 py-4">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${scoreBadgeClasses(result.score, result.total_questions)}`}
-                >
+                <BrutalistBadge isDark={isDark} variant={scoreBadgeVariant(result.score, result.total_questions)}>
                   {result.score}/{result.total_questions}
-                </span>
+                </BrutalistBadge>
               </td>
-              <td className="px-5 py-4 text-sm text-gray-500">
+              <td className={`px-5 py-4 font-mono text-sm ${t.textMid}`}>
                 {formatDate(result.completed_at)}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </BrutalistCard>
   );
 }

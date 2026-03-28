@@ -1,7 +1,9 @@
+import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import TeacherCourseDetailPage from "./page";
+import { DashboardThemeContext } from "../../dashboard-theme-context";
 
 global.fetch = vi.fn();
 
@@ -22,6 +24,33 @@ vi.mock("@/components", async (importOriginal) => {
       open ? <div data-testid="assign-session-modal">Assign Modal</div> : null,
   };
 });
+
+vi.mock("@/components/ui/dashboard-primitives", () => ({
+  BrutalistCard: ({ children, className }: { children: React.ReactNode; className?: string }) => (
+    <div data-testid="brutalist-card" className={className}>{children}</div>
+  ),
+  BrutalistButton: ({ children, onClick, disabled, variant, size, iconBefore }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; variant?: string; size?: string; iconBefore?: React.ReactNode }) => (
+    <button onClick={onClick} disabled={disabled} data-variant={variant} data-size={size}>{iconBefore}{children}</button>
+  ),
+  BrutalistTab: ({ label, count, active, onClick }: { isDark: boolean; label: string; count?: number; active: boolean; onClick: () => void }) => (
+    <button onClick={onClick} data-active={active}>{label}{count !== undefined && <span>{count}</span>}</button>
+  ),
+  BrutalistBadge: ({ children, variant, icon }: { children: React.ReactNode; isDark: boolean; variant: string; icon?: React.ReactNode }) => (
+    <span data-variant={variant}>{icon}{children}</span>
+  ),
+  SectionLabel: ({ num, label }: { num: string; label: string; isDark: boolean }) => (
+    <div>{num} {label}</div>
+  ),
+  themeTokens: () => ({
+    bg: "",
+    text: "",
+    textMid: "",
+    textDim: "",
+    border: "",
+    borderMid: "",
+    borderFull: "",
+  }),
+}));
 
 const mockCourse = {
   id: "course-1",
@@ -62,6 +91,14 @@ const mockSessions = [
   },
 ];
 
+function renderWithTheme(ui: React.ReactElement) {
+  return render(
+    <DashboardThemeContext.Provider value={{ isDark: true, toggle: () => {} }}>
+      {ui}
+    </DashboardThemeContext.Provider>
+  );
+}
+
 function setupDefaultMocks() {
   // Course fetch
   vi.mocked(global.fetch).mockResolvedValueOnce({
@@ -97,8 +134,8 @@ describe("TeacherCourseDetailPage", () => {
 
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
-    render(<TeacherCourseDetailPage />);
-    expect(screen.getByText("Loading course...")).toBeInTheDocument();
+    renderWithTheme(<TeacherCourseDetailPage />);
+    expect(screen.getByText("LOADING COURSE...")).toBeInTheDocument();
   });
 
   it("shows error state with back link", async () => {
@@ -115,39 +152,39 @@ describe("TeacherCourseDetailPage", () => {
       ok: true,
       json: async () => ({ count: 0 }),
     } as Response);
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
       expect(screen.getByText("Course not found")).toBeInTheDocument();
     });
-    expect(screen.getByText("Back to Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("BACK TO DASHBOARD")).toBeInTheDocument();
   });
 
   it("renders course header with title and metadata", async () => {
     setupDefaultMocks();
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Biology 101")).toBeInTheDocument();
+      expect(screen.getByText("BIOLOGY 101")).toBeInTheDocument();
     });
     expect(screen.getByText("BIO101")).toBeInTheDocument();
     expect(screen.getByText("Fall 2025")).toBeInTheDocument();
-    expect(screen.getByText("25 students")).toBeInTheDocument();
+    expect(screen.getByText("25 STUDENTS")).toBeInTheDocument();
   });
 
   it("renders tab buttons with counts", async () => {
     setupDefaultMocks();
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Materials")).toBeInTheDocument();
+      expect(screen.getByText("MATERIALS")).toBeInTheDocument();
     });
-    expect(screen.getByText("Students")).toBeInTheDocument();
-    expect(screen.getByText("Priming Sessions")).toBeInTheDocument();
+    expect(screen.getByText("STUDENTS")).toBeInTheDocument();
+    expect(screen.getByText("SESSIONS")).toBeInTheDocument();
   });
 
   it("switches to Students tab", async () => {
     setupDefaultMocks();
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Students")).toBeInTheDocument();
+      expect(screen.getByText("STUDENTS")).toBeInTheDocument();
     });
 
     // Mock students tab fetch
@@ -156,19 +193,19 @@ describe("TeacherCourseDetailPage", () => {
       json: async () => ({ students: [] }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Students"));
+    await userEvent.click(screen.getByText("STUDENTS"));
 
     await waitFor(() => {
-      expect(screen.getByText("Invitation Code")).toBeInTheDocument();
+      expect(screen.getByText("INVITATION CODE")).toBeInTheDocument();
     });
     expect(screen.getByText("ABC123")).toBeInTheDocument();
   });
 
   it("switches to Sessions tab", async () => {
     setupDefaultMocks();
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Priming Sessions")).toBeInTheDocument();
+      expect(screen.getByText("SESSIONS")).toBeInTheDocument();
     });
 
     // Mock assignments fetch for SessionsTab
@@ -177,17 +214,17 @@ describe("TeacherCourseDetailPage", () => {
       json: async () => ({ assignments: [] }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Priming Sessions"));
+    await userEvent.click(screen.getByText("SESSIONS"));
 
     await waitFor(() => {
-      expect(screen.getByText("Create Priming Session")).toBeInTheDocument();
+      expect(screen.getByText("CREATE SESSION")).toBeInTheDocument();
     });
-    expect(screen.getByText("Assign Session")).toBeInTheDocument();
+    expect(screen.getByText("ASSIGN SESSION")).toBeInTheDocument();
   });
 
   it("fetches course, sessions, and student count on mount", async () => {
     setupDefaultMocks();
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith("/api/courses/course-1");
       expect(global.fetch).toHaveBeenCalledWith("/api/courses/course-1/sessions");
@@ -195,7 +232,7 @@ describe("TeacherCourseDetailPage", () => {
     });
   });
 
-  it("shows singular 'student' for count of 1", async () => {
+  it("shows singular 'STUDENT' for count of 1", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ course: mockCourse }),
@@ -212,9 +249,9 @@ describe("TeacherCourseDetailPage", () => {
       ok: true,
       json: async () => ({ materials: [] }),
     } as Response);
-    render(<TeacherCourseDetailPage />);
+    renderWithTheme(<TeacherCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("1 student")).toBeInTheDocument();
+      expect(screen.getByText("1 STUDENT")).toBeInTheDocument();
     });
   });
 });

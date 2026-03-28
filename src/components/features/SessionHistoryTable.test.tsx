@@ -21,7 +21,7 @@ function makeResult(overrides: Partial<StudentSessionResult> = {}): StudentSessi
 describe("SessionHistoryTable", () => {
   it("renders empty state when results is empty", () => {
     render(<SessionHistoryTable results={[]} />);
-    expect(screen.getByText("No sessions completed yet")).toBeInTheDocument();
+    expect(screen.getByText("NO SESSIONS COMPLETED YET")).toBeInTheDocument();
   });
 
   it("does not render a table when results is empty", () => {
@@ -31,9 +31,9 @@ describe("SessionHistoryTable", () => {
 
   it("renders a table with column headers", () => {
     render(<SessionHistoryTable results={[makeResult()]} />);
-    expect(screen.getByText("Session")).toBeInTheDocument();
-    expect(screen.getByText("Score")).toBeInTheDocument();
-    expect(screen.getByText("Date")).toBeInTheDocument();
+    expect(screen.getByText("SESSION")).toBeInTheDocument();
+    expect(screen.getByText("SCORE")).toBeInTheDocument();
+    expect(screen.getByText("DATE")).toBeInTheDocument();
   });
 
   it("displays session title and course code", () => {
@@ -52,22 +52,22 @@ describe("SessionHistoryTable", () => {
     expect(screen.getByText("3/4")).toBeInTheDocument();
   });
 
-  it("applies green badge for score >= 80%", () => {
+  it("applies success badge for score >= 80%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 4, total_questions: 5 })]} />);
     const badge = screen.getByText("4/5");
-    expect(badge).toHaveClass("bg-green-50", "text-green-700");
+    expect(badge).toHaveClass("text-green-400");
   });
 
-  it("applies yellow badge for score >= 60% and < 80%", () => {
+  it("applies warning badge for score >= 60% and < 80%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 3, total_questions: 5 })]} />);
     const badge = screen.getByText("3/5");
-    expect(badge).toHaveClass("bg-yellow-50", "text-yellow-700");
+    expect(badge).toHaveClass("text-amber-400");
   });
 
-  it("applies red badge for score < 60%", () => {
+  it("applies error badge for score < 60%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 1, total_questions: 5 })]} />);
     const badge = screen.getByText("1/5");
-    expect(badge).toHaveClass("bg-red-50", "text-red-700");
+    expect(badge).toHaveClass("text-red-400");
   });
 
   it("formats date correctly", () => {

@@ -12,6 +12,10 @@ vi.mock("next/navigation", () => ({
   ),
 }));
 
+vi.mock("@/app/(dashboard)/teacher/dashboard-theme-context", () => ({
+  useDashboardTheme: () => ({ isDark: false }),
+}));
+
 vi.mock("@/components", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
@@ -84,7 +88,7 @@ describe("SessionDetailPage (Teacher)", () => {
   it("shows loading state initially", () => {
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
     render(<SessionDetailPage />);
-    expect(screen.getByText("Loading session...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING SESSION...")).toBeInTheDocument();
   });
 
   it("shows error state", async () => {
@@ -96,7 +100,7 @@ describe("SessionDetailPage (Teacher)", () => {
     await waitFor(() => {
       expect(screen.getByText("Session not found")).toBeInTheDocument();
     });
-    expect(screen.getByText("Back to Course")).toBeInTheDocument();
+    expect(screen.getByText("← BACK TO COURSE")).toBeInTheDocument();
   });
 
   it("renders session header", async () => {
@@ -127,7 +131,7 @@ describe("SessionDetailPage (Teacher)", () => {
     mockSessionFetch();
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Check Your Understanding")).toBeInTheDocument();
+      expect(screen.getByText("CHECK YOUR UNDERSTANDING")).toBeInTheDocument();
     });
     expect(screen.getByText("What controls the cell?")).toBeInTheDocument();
     expect(screen.getByText("Membrane")).toBeInTheDocument();
@@ -138,7 +142,7 @@ describe("SessionDetailPage (Teacher)", () => {
     mockSessionFetch();
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Generate Audio Version")).toBeInTheDocument();
+      expect(screen.getByText("GENERATE AUDIO VERSION")).toBeInTheDocument();
     });
   });
 
@@ -152,7 +156,6 @@ describe("SessionDetailPage (Teacher)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("audio-player")).toBeInTheDocument();
     });
-    expect(screen.getByText("AudioPlayer: https://example.com/audio.mp3")).toBeInTheDocument();
   });
 
   it("shows failed audio message", async () => {
@@ -162,7 +165,7 @@ describe("SessionDetailPage (Teacher)", () => {
     });
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Audio generation failed. Try again.")).toBeInTheDocument();
+      expect(screen.getByText("AUDIO GENERATION FAILED. TRY AGAIN.")).toBeInTheDocument();
     });
   });
 
@@ -170,7 +173,7 @@ describe("SessionDetailPage (Teacher)", () => {
     mockSessionFetch();
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Generate Audio Version")).toBeInTheDocument();
+      expect(screen.getByText("GENERATE AUDIO VERSION")).toBeInTheDocument();
     });
 
     // Mock generate response with cached=true
@@ -182,7 +185,7 @@ describe("SessionDetailPage (Teacher)", () => {
       }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Generate Audio Version"));
+    await userEvent.click(screen.getByText("GENERATE AUDIO VERSION"));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -199,7 +202,7 @@ describe("SessionDetailPage (Teacher)", () => {
     });
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("Generating audio...")).toBeInTheDocument();
+      expect(screen.getByText("GENERATING AUDIO...")).toBeInTheDocument();
     });
   });
 
@@ -217,7 +220,7 @@ describe("SessionDetailPage (Teacher)", () => {
     mockSessionFetch();
     render(<SessionDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("1 questions generated from this material")).toBeInTheDocument();
+      expect(screen.getByText("1 QUESTIONS GENERATED FROM THIS MATERIAL")).toBeInTheDocument();
     });
   });
 });

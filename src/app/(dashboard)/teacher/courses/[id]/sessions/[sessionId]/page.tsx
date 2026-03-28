@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, AudioPlayer } from "@/components";
+import { AudioPlayer } from "@/components";
+import { useDashboardTheme } from "@/app/(dashboard)/teacher/dashboard-theme-context";
 import type {
   PrimingSession,
   PrimingSessionContent,
@@ -15,7 +16,30 @@ interface SessionDetail extends PrimingSession {
   course: { title: string; course_code: string };
 }
 
+// ─── Scroll-reveal hook ───────────────────────────────────────────────────────
+function useReveal(threshold = 0.12) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
+
 export default function SessionDetailPage() {
+  const { isDark } = useDashboardTheme();
   const { id: courseId, sessionId } = useParams<{
     id: string;
     sessionId: string;
@@ -25,6 +49,17 @@ export default function SessionDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+
+  // Theme tokens
+  const bg = isDark ? 'bg-black' : 'bg-white';
+  const text = isDark ? 'text-white' : 'text-black';
+  const textMid = isDark ? 'text-white/60' : 'text-black/50';
+  const textDim = isDark ? 'text-white/40' : 'text-black/35';
+  const border = isDark ? 'border-white/15' : 'border-black/12';
+  const borderMid = isDark ? 'border-white/30' : 'border-black/25';
+  const cardBg = isDark ? 'bg-white/[0.03]' : 'bg-black/[0.02]';
+  const line = isDark ? 'bg-white/40' : 'bg-black/25';
+  const hoverBorder = isDark ? 'hover:border-white/20' : 'hover:border-black/20';
 
   const fetchSession = useCallback(async () => {
     try {
@@ -102,22 +137,33 @@ export default function SessionDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-gray-400">Loading session...</p>
+      <div className={`min-h-screen ${bg} flex items-center justify-center transition-colors duration-500`}>
+        <div className="text-center">
+          <div className="flex gap-1 mb-4 justify-center">
+            <div className={`w-1 h-1 ${isDark ? 'bg-white/60' : 'bg-black/60'} rounded-full animate-pulse`} />
+            <div className={`w-1 h-1 ${isDark ? 'bg-white/40' : 'bg-black/40'} rounded-full animate-pulse`} style={{ animationDelay: '0.2s' }} />
+            <div className={`w-1 h-1 ${isDark ? 'bg-white/20' : 'bg-black/20'} rounded-full animate-pulse`} style={{ animationDelay: '0.4s' }} />
+          </div>
+          <p className={`font-mono text-xs ${textMid} tracking-wider`}>LOADING SESSION...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !session) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-sm text-red-500">{error || "Session not found"}</p>
-        <Link
-          href={`/teacher/courses/${courseId}`}
-          className="mt-4 text-sm font-medium text-gray-500 hover:text-black"
-        >
-          Back to Course
-        </Link>
+      <div className={`min-h-screen ${bg} flex items-center justify-center transition-colors duration-500`}>
+        <div className={`relative text-center border ${border} p-12 max-w-md`}>
+          <div className={`absolute top-0 left-0 w-4 h-4 border-t border-l ${borderMid}`} />
+          <div className={`absolute bottom-0 right-0 w-4 h-4 border-b border-r ${borderMid}`} />
+          <p className="font-mono text-xs text-red-600 mb-6 tracking-wider">{error || "SESSION NOT FOUND"}</p>
+          <Link
+            href={`/teacher/courses/${courseId}`}
+            className={`inline-block font-mono text-xs border ${isDark ? 'border-white' : 'border-black'} px-5 py-2.5 ${isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'} transition-all duration-200`}
+          >
+            ← BACK TO COURSE
+          </Link>
+        </div>
       </div>
     );
   }
@@ -125,68 +171,84 @@ export default function SessionDetailPage() {
   const content = session.content as PrimingSessionContent | null;
 
   return (
-    <div className="mx-auto max-w-3xl">
-      {/* Back link */}
-      <Link
-        href={`/teacher/courses/${courseId}`}
-        className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-black"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+    <div className={`min-h-screen ${bg} transition-colors duration-500`}>
+      {/* Corner Frame Accents */}
+      <div className={`fixed top-0 left-0 w-8 h-8 lg:w-12 lg:h-12 border-t-2 border-l-2 ${borderMid} z-20 pointer-events-none`} />
+      <div className={`fixed top-0 right-0 w-8 h-8 lg:w-12 lg:h-12 border-t-2 border-r-2 ${borderMid} z-20 pointer-events-none`} />
+      <div className={`fixed bottom-0 left-0 w-8 h-8 lg:w-12 lg:h-12 border-b-2 border-l-2 ${borderMid} z-20 pointer-events-none`} />
+      <div className={`fixed bottom-0 right-0 w-8 h-8 lg:w-12 lg:h-12 border-b-2 border-r-2 ${borderMid} z-20 pointer-events-none`} />
+
+      <div className="container mx-auto px-6 lg:px-16 py-12 lg:py-20 max-w-4xl">
+        {/* Back link */}
+        <Link
+          href={`/teacher/courses/${courseId}`}
+          className={`inline-flex items-center gap-2 font-mono text-xs ${textMid} ${isDark ? 'hover:text-white' : 'hover:text-black'} transition-colors mb-8`}
         >
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-        Back to Course
-      </Link>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+          BACK TO COURSE
+        </Link>
 
-      {/* Session header */}
-      <div className="mb-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          {session.course?.course_code} · {session.material?.file_name}
-        </p>
-      </div>
-      <h1 className="text-2xl font-bold tracking-tight text-black">
-        {session.title}
-      </h1>
-      <p className="mt-2 text-sm text-gray-500">
-        Generated{" "}
-        {new Date(session.created_at).toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        })}
-      </p>
+        {/* Session header */}
+        <div className="mb-10 relative">
+          {/* Decorative top line */}
+          <div className="flex items-center gap-2 mb-4 opacity-60">
+            <div className={`w-8 h-px ${line}`} />
+            <span className={`${textMid} font-mono text-[10px] tracking-wider`}>001</span>
+            <div className={`flex-1 h-px ${line}`} />
+            <span className={`${textDim} font-mono text-[10px] tracking-[0.3em] uppercase`}>
+              {session.course?.course_code} · {session.material?.file_name}
+            </span>
+            <div className={`w-4 h-px ${line}`} />
+          </div>
 
-      {/* Audio section */}
-      {session.status === "completed" && (
-        <div className="mt-6">
-          {session.audio_status === "ready" && session.audio_url ? (
-            <AudioPlayer src={session.audio_url} />
-          ) : (
-            <div>
-              <Button
-                onClick={handleGenerateAudio}
-                variant="secondary"
-                disabled={
-                  isGeneratingAudio || session.audio_status === "generating"
-                }
-                iconBefore={
-                  !isGeneratingAudio &&
-                  session.audio_status !== "generating" ? (
+          <h1 className={`font-mono font-bold text-2xl lg:text-4xl ${text} tracking-wider leading-tight mb-3`}>
+            {session.title}
+          </h1>
+          <p className={`font-mono text-xs ${textDim} tracking-wider`}>
+            GENERATED {new Date(session.created_at).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            }).toUpperCase()}
+          </p>
+        </div>
+
+        {/* Audio section */}
+        {session.status === "completed" && (
+          <div className="mb-12">
+            {session.audio_status === "ready" && session.audio_url ? (
+              <div>
+                <div className={`font-mono text-[10px] tracking-[0.3em] uppercase ${textDim} mb-4`}>AUDIO NARRATION</div>
+                <AudioPlayer src={session.audio_url} isDark={isDark} />
+              </div>
+            ) : (
+              <div className={`relative border ${border} p-6 ${cardBg}`}>
+                <div className={`absolute top-0 left-0 w-3 h-3 border-t border-l ${borderMid}`} />
+                <div className={`font-mono text-[10px] tracking-[0.3em] uppercase ${textDim} mb-4`}>AUDIO NARRATION</div>
+                <button
+                  onClick={handleGenerateAudio}
+                  disabled={isGeneratingAudio || session.audio_status === "generating"}
+                  className={`relative font-mono text-sm ${text} border ${isDark ? 'border-white' : 'border-black'} px-6 py-2.5 ${isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'} transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${isDark ? 'disabled:hover:bg-transparent disabled:hover:text-white' : 'disabled:hover:bg-transparent disabled:hover:text-black'} group`}
+                >
+                  {!isGeneratingAudio && session.audio_status !== "generating" && (
                     <svg
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -194,116 +256,129 @@ export default function SessionDetailPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       aria-hidden="true"
+                      className="inline mr-2"
                     >
                       <path d="M9 18V5l12-2v13" />
                       <circle cx="6" cy="18" r="3" />
                       <circle cx="18" cy="16" r="3" />
                     </svg>
-                  ) : undefined
-                }
-              >
-                {isGeneratingAudio || session.audio_status === "generating"
-                  ? "Generating audio..."
-                  : "Generate Audio Version"}
-              </Button>
-              {session.audio_status === "failed" && (
-                <p className="mt-2 text-sm text-red-500">
-                  Audio generation failed. Try again.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                  )}
+                  {isGeneratingAudio || session.audio_status === "generating"
+                    ? "GENERATING AUDIO..."
+                    : "GENERATE AUDIO VERSION"}
+                </button>
+                {session.audio_status === "failed" && (
+                  <p className="mt-3 font-mono text-xs text-red-600 tracking-wider">
+                    AUDIO GENERATION FAILED. TRY AGAIN.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
-      {/* Content sections */}
-      {content && (
-        <div className="mt-10 space-y-12">
-          {/* Introduction */}
-          <ContentSection label="Introduction" title={content.introduction.title}>
-            <div className="space-y-4 text-gray-700 leading-relaxed">
-              {content.introduction.paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          </ContentSection>
+        {/* Content sections */}
+        {content && (
+          <div className="space-y-16">
+            {/* Introduction */}
+            <ContentSection label="INTRODUCTION" title={content.introduction.title} isDark={isDark}>
+              <div className={`space-y-4 font-mono text-sm ${textMid} leading-relaxed`}>
+                {content.introduction.paragraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            </ContentSection>
 
-          {/* Key Terms */}
-          <ContentSection label="Key Terms" title="Essential Vocabulary">
+            {/* Key Terms */}
+            <ContentSection label="KEY TERMS" title="Essential Vocabulary" isDark={isDark}>
+              <div className="space-y-3">
+                {content.keyTerms.map((term, i) => (
+                  <div
+                    key={i}
+                    className={`relative border ${border} ${cardBg} p-6 group ${hoverBorder} transition-colors`}
+                  >
+                    <div className={`absolute top-0 left-0 w-2 h-full ${isDark ? 'bg-white' : 'bg-black'}`} />
+                    <div className="pl-4">
+                      <p className={`font-mono font-bold text-base ${text} tracking-wider`}>
+                        {term.term}
+                      </p>
+                      <p className={`mt-2 font-mono text-sm ${textMid} leading-relaxed`}>
+                        {term.definition}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ContentSection>
+
+            {/* Core Concepts */}
+            <ContentSection label="CORE CONCEPTS" title="Key Ideas" isDark={isDark}>
+              <div className="space-y-6">
+                {content.coreConcepts.map((concept, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center border-2 ${isDark ? 'border-white' : 'border-black'} bg-transparent font-mono text-sm font-bold ${text}`}>
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className={`font-mono font-bold text-base ${text} tracking-wider`}>
+                        {concept.title}
+                      </h3>
+                      <p className={`mt-2 font-mono text-sm ${textMid} leading-relaxed`}>
+                        {concept.explanation}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ContentSection>
+
+            {/* Lecture Preview */}
+            <ContentSection
+              label="WHAT TO EXPECT"
+              title={content.lecturePreview.title}
+              isDark={isDark}
+            >
+              <div className={`space-y-4 font-mono text-sm ${textMid} leading-relaxed`}>
+                {content.lecturePreview.paragraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            </ContentSection>
+          </div>
+        )}
+
+        {/* Quiz Questions */}
+        {questions.length > 0 && (
+          <div className="mt-20 mb-12">
+            <div className={`mb-10 text-center border-t border-b ${border} py-8`}>
+              <div className="flex items-center justify-center gap-2 mb-3 opacity-60">
+                <div className={`w-8 h-px ${line}`} />
+                <span className={`font-mono text-[10px] ${textMid} tracking-wider`}>002</span>
+                <div className={`flex-1 h-px ${line}`} />
+                <span className={`font-mono text-[10px] ${textDim} tracking-[0.3em] uppercase`}>QUIZ PREVIEW</span>
+                <div className={`flex-1 h-px ${line}`} />
+                <span className={`font-mono text-[10px] ${textMid} tracking-wider`}>002</span>
+                <div className={`w-8 h-px ${line}`} />
+              </div>
+              <h2 className={`font-mono font-bold text-2xl ${text} tracking-wider`}>
+                CHECK YOUR UNDERSTANDING
+              </h2>
+              <p className={`mt-2 font-mono text-xs ${textMid} tracking-wider`}>
+                {questions.length} QUESTIONS GENERATED FROM THIS MATERIAL
+              </p>
+            </div>
+
             <div className="space-y-4">
-              {content.keyTerms.map((term, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border-l-3 border-l-black bg-gray-50 p-5"
-                >
-                  <p className="text-lg font-semibold text-black">
-                    {term.term}
-                  </p>
-                  <p className="mt-1 text-gray-700 leading-relaxed">
-                    {term.definition}
-                  </p>
-                </div>
+              {questions.map((q) => (
+                <QuestionCard key={q.id} question={q} isDark={isDark} />
               ))}
             </div>
-          </ContentSection>
-
-          {/* Core Concepts */}
-          <ContentSection label="Core Concepts" title="Key Ideas">
-            <div className="space-y-6">
-              {content.coreConcepts.map((concept, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
-                    {i + 1}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-black">
-                      {concept.title}
-                    </h3>
-                    <p className="mt-1 text-gray-700 leading-relaxed">
-                      {concept.explanation}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ContentSection>
-
-          {/* Lecture Preview */}
-          <ContentSection
-            label="What to Expect"
-            title={content.lecturePreview.title}
-          >
-            <div className="space-y-4 text-gray-700 leading-relaxed">
-              {content.lecturePreview.paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
-          </ContentSection>
-        </div>
-      )}
-
-      {/* Quiz Questions */}
-      {questions.length > 0 && (
-        <div className="mt-16">
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl font-bold text-black">
-              Check Your Understanding
-            </h2>
-            <p className="mt-2 text-gray-500">
-              {questions.length} questions generated from this material
-            </p>
           </div>
+        )}
 
-          <div className="space-y-6">
-            {questions.map((q) => (
-              <QuestionCard key={q.id} question={q} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Bottom spacer */}
-      <div className="h-16" />
+        {/* Bottom spacer */}
+        <div className="h-16" />
+      </div>
     </div>
   );
 }
@@ -316,22 +391,30 @@ interface ContentSectionProps {
   label: string;
   title: string;
   children: React.ReactNode;
+  isDark: boolean;
 }
 
 function ContentSection({
   label,
   title,
   children,
+  isDark,
 }: Readonly<ContentSectionProps>) {
+  const line = isDark ? 'bg-white/40' : 'bg-black/25';
+  const textDim = isDark ? 'text-white/40' : 'text-black/35';
+  const text = isDark ? 'text-white' : 'text-black';
+
   return (
     <section>
-      <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-        {label}
-      </p>
-      <h2 className="mt-2 text-2xl font-bold tracking-tight text-black">
+      <div className="flex items-center gap-2 mb-4 opacity-60">
+        <div className={`w-8 h-px ${line}`} />
+        <span className={`${textDim} font-mono text-[10px] tracking-[0.3em] uppercase`}>{label}</span>
+        <div className={`flex-1 h-px ${line}`} />
+      </div>
+      <h2 className={`font-mono font-bold text-xl lg:text-2xl ${text} tracking-wider leading-tight mb-6`}>
         {title}
       </h2>
-      <div className="mt-4">{children}</div>
+      <div>{children}</div>
     </section>
   );
 }
@@ -342,11 +425,20 @@ function ContentSection({
 
 interface QuestionCardProps {
   question: SessionQuestion;
+  isDark: boolean;
 }
 
-function QuestionCard({ question }: Readonly<QuestionCardProps>) {
+function QuestionCard({ question, isDark }: Readonly<QuestionCardProps>) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
+
+  const border = isDark ? 'border-white/15' : 'border-black/12';
+  const borderMid = isDark ? 'border-white/30' : 'border-black/25';
+  const cardBg = isDark ? 'bg-white/[0.03]' : 'bg-black/[0.02]';
+  const text = isDark ? 'text-white' : 'text-black';
+  const textMid = isDark ? 'text-white/60' : 'text-black/50';
+  const textDim = isDark ? 'text-white/40' : 'text-black/35';
+  const hoverBorder = isDark ? 'hover:border-white/20' : 'hover:border-black/20';
 
   const options = [
     { key: "a", text: question.option_a },
@@ -366,47 +458,42 @@ function QuestionCard({ question }: Readonly<QuestionCardProps>) {
   };
 
   return (
-    <Card className="p-6">
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-        Question {question.question_number} of 4
+    <div className={`relative border ${border} ${cardBg} p-6 ${hoverBorder} transition-colors`}>
+      <div className={`absolute top-0 left-0 w-3 h-3 border-t border-l ${borderMid}`} />
+      <div className={`absolute bottom-0 right-0 w-3 h-3 border-b border-r ${borderMid}`} />
+
+      <p className={`font-mono text-[10px] tracking-[0.3em] uppercase ${textDim} mb-3`}>
+        QUESTION {String(question.question_number).padStart(2, '0')}
       </p>
-      <p className="mt-2 text-lg font-semibold text-black">
+      <p className={`font-mono font-bold text-base ${text} mb-6 leading-relaxed`}>
         {question.question_text}
       </p>
 
-      <div className="mt-4 space-y-2">
+      <div className="space-y-2">
         {options.map((opt) => {
           const isCorrect = opt.key === question.correct_answer;
           const isSelected = opt.key === selectedAnswer;
 
-          let optionClasses =
-            "flex cursor-pointer items-center gap-3 rounded-lg border-2 p-4 transition-colors";
+          let optionClasses = "flex cursor-pointer items-center gap-3 border p-4 transition-all";
+          let letterClasses = "flex h-8 w-8 shrink-0 items-center justify-center border font-mono text-xs font-bold transition-all";
 
           if (revealed) {
             if (isCorrect) {
-              optionClasses += " border-green-500 bg-green-50";
+              optionClasses += " border-green-600 bg-green-50";
+              letterClasses += " border-green-600 bg-green-600 text-white";
             } else if (isSelected && !isCorrect) {
-              optionClasses += " border-red-500 bg-red-50";
+              optionClasses += " border-red-600 bg-red-50";
+              letterClasses += " border-red-600 bg-red-600 text-white";
             } else {
-              optionClasses += " border-gray-200 bg-gray-50 opacity-60";
+              optionClasses += ` ${isDark ? 'border-white/10' : 'border-black/10'} bg-transparent opacity-50`;
+              letterClasses += ` ${isDark ? 'border-white/20' : 'border-black/20'} bg-transparent ${isDark ? 'text-white/40' : 'text-black/40'}`;
             }
           } else if (isSelected) {
-            optionClasses += " border-black bg-white";
+            optionClasses += ` ${isDark ? 'border-white' : 'border-black'} ${isDark ? 'bg-black' : 'bg-white'}`;
+            letterClasses += ` ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`;
           } else {
-            optionClasses += " border-gray-200 bg-gray-50 hover:border-gray-400";
-          }
-
-          let letterClasses =
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-2 text-sm font-bold transition-colors";
-
-          if (revealed && isCorrect) {
-            letterClasses += " border-green-500 bg-green-500 text-white";
-          } else if (revealed && isSelected && !isCorrect) {
-            letterClasses += " border-red-500 bg-red-500 text-white";
-          } else if (isSelected) {
-            letterClasses += " border-black bg-black text-white";
-          } else {
-            letterClasses += " border-gray-300 bg-white text-gray-700";
+            optionClasses += ` ${isDark ? 'border-white/15 hover:border-white/40' : 'border-black/15 hover:border-black/40'} bg-transparent`;
+            letterClasses += ` ${isDark ? 'border-white/30' : 'border-black/30'} bg-transparent ${isDark ? 'text-white/60' : 'text-black/60'}`;
           }
 
           return (
@@ -419,30 +506,30 @@ function QuestionCard({ question }: Readonly<QuestionCardProps>) {
               <span className={letterClasses}>
                 {opt.key.toUpperCase()}
               </span>
-              <span className="text-left text-gray-700">{opt.text}</span>
+              <span className={`text-left font-mono text-sm ${textMid}`}>{opt.text}</span>
             </button>
           );
         })}
       </div>
 
       {!revealed && (
-        <Button
-          className="mt-4 w-full"
+        <button
+          className={`mt-6 w-full font-mono text-sm ${text} border ${isDark ? 'border-white' : 'border-black'} px-6 py-2.5 ${isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'} transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${isDark ? 'disabled:hover:bg-transparent disabled:hover:text-white' : 'disabled:hover:bg-transparent disabled:hover:text-black'}`}
           disabled={!selectedAnswer}
           onClick={handleReveal}
         >
-          Check Answer
-        </Button>
+          CHECK ANSWER
+        </button>
       )}
 
       {revealed && question.explanation && (
-        <div className="mt-4 rounded-lg bg-gray-50 p-4">
-          <p className="text-sm font-semibold text-black">Explanation</p>
-          <p className="mt-1 text-sm text-gray-700 leading-relaxed">
+        <div className={`mt-6 border ${border} ${cardBg} p-4`}>
+          <p className={`font-mono text-[10px] tracking-[0.3em] uppercase ${textDim} mb-2`}>EXPLANATION</p>
+          <p className={`font-mono text-sm ${textMid} leading-relaxed`}>
             {question.explanation}
           </p>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

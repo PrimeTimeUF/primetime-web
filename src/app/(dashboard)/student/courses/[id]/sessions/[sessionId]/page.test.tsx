@@ -107,7 +107,7 @@ describe("StudentSessionPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Session not found")).toBeInTheDocument();
     });
-    expect(screen.getByText("← BACK TO COURSE")).toBeInTheDocument();
+    expect(screen.getByText("BACK TO COURSE")).toBeInTheDocument();
   });
 
   it("renders session header", async () => {
@@ -147,7 +147,7 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
   });
 
@@ -155,10 +155,10 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     expect(screen.getByText("CHECK YOUR UNDERSTANDING")).toBeInTheDocument();
     expect(screen.getByText("What is the basic unit of life?")).toBeInTheDocument();
@@ -169,9 +169,9 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     expect(screen.getByText("Atom")).toBeInTheDocument();
     expect(screen.getByText("Cell", { selector: "span" })).toBeInTheDocument();
@@ -183,20 +183,20 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
-    expect(screen.getByText(/SUBMIT QUIZ/)).toBeDisabled();
+    expect(screen.getByRole("button", { name: /SUBMIT QUIZ/ })).toBeDisabled();
   });
 
   it("submits quiz and shows results", async () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     // Select answer for Q1 (Cell = option b)
     const cellOption = screen.getByText("Cell", { selector: "span" });
@@ -219,7 +219,7 @@ describe("StudentSessionPage", () => {
       }),
     } as Response);
 
-    await userEvent.click(screen.getByText(/SUBMIT QUIZ/));
+    await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
 
     await waitFor(() => {
       expect(screen.getByText("2/2")).toBeInTheDocument();
@@ -255,9 +255,9 @@ describe("StudentSessionPage", () => {
     mockSessionFetch();
     render(<StudentSessionPage />);
     await waitFor(() => {
-      expect(screen.getByText(/START QUIZ \(2 QUESTIONS\)/)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /START QUIZ/ })).toBeInTheDocument();
     });
-    await userEvent.click(screen.getByText(/START QUIZ \(2 QUESTIONS\)/));
+    await userEvent.click(screen.getByRole("button", { name: /START QUIZ/ }));
 
     // Select answers
     await userEvent.click(screen.getByText("Atom").closest("button")!);
@@ -268,7 +268,7 @@ describe("StudentSessionPage", () => {
       json: async () => ({ score: 0, total_questions: 2, results: [] }),
     } as Response);
 
-    await userEvent.click(screen.getByText(/SUBMIT QUIZ/));
+    await userEvent.click(screen.getByRole("button", { name: /SUBMIT QUIZ/ }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(

@@ -1,43 +1,47 @@
 "use client";
 
 import type { StudentAnalyticsSummary } from "@/lib/types/student-analytics";
+import { BrutalistCard, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface AnalyticsStatsBarProps {
   summary: StudentAnalyticsSummary;
+  isDark?: boolean;
 }
 
-function scoreColor(percentage: number): string {
-  if (percentage >= 80) return "text-green-600";
-  if (percentage >= 60) return "text-yellow-600";
-  return "text-red-600";
+function scoreColor(percentage: number, isDark: boolean): string {
+  if (percentage >= 80) return isDark ? "text-green-400" : "text-green-600";
+  if (percentage >= 60) return isDark ? "text-amber-400" : "text-amber-600";
+  return isDark ? "text-red-400" : "text-red-600";
 }
 
-export default function AnalyticsStatsBar({ summary }: AnalyticsStatsBarProps) {
+export default function AnalyticsStatsBar({ summary, isDark = true }: AnalyticsStatsBarProps) {
+  const t = themeTokens(isDark);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Average Score */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm text-gray-500 mb-1">Average Score</div>
-        <div className={`text-2xl font-semibold ${scoreColor(summary.average_score_percentage)}`}>
+      <BrutalistCard isDark={isDark}>
+        <div className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-2`}>AVG SCORE</div>
+        <div className={`font-mono text-2xl font-bold ${scoreColor(summary.average_score_percentage, isDark)}`}>
           {summary.average_score_percentage}%
         </div>
-      </div>
+      </BrutalistCard>
 
       {/* Sessions Completed */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm text-gray-500 mb-1">Sessions Completed</div>
-        <div className="text-2xl font-semibold text-black">
+      <BrutalistCard isDark={isDark}>
+        <div className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-2`}>SESSIONS DONE</div>
+        <div className={`font-mono text-2xl font-bold ${t.text}`}>
           {summary.total_sessions_completed}
         </div>
-      </div>
+      </BrutalistCard>
 
       {/* Best Score */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="text-sm text-gray-500 mb-1">Best Score</div>
-        <div className={`text-2xl font-semibold ${scoreColor(summary.best_score_percentage)}`}>
+      <BrutalistCard isDark={isDark}>
+        <div className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-2`}>BEST SCORE</div>
+        <div className={`font-mono text-2xl font-bold ${scoreColor(summary.best_score_percentage, isDark)}`}>
           {summary.best_score_percentage}%
         </div>
-      </div>
+      </BrutalistCard>
     </div>
   );
 }

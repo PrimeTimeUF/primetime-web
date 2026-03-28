@@ -16,8 +16,8 @@ vi.mock("@/components", async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    AudioPlayer: ({ src }: { src: string }) => (
-      <div data-testid="audio-player">AudioPlayer: {src}</div>
+    AudioPlayer: ({ src, isDark }: { src: string; isDark?: boolean }) => (
+      <div data-testid="audio-player">AudioPlayer: {src} (dark: {isDark ? 'yes' : 'no'})</div>
     ),
   };
 });

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input } from "@/components";
+import { useDashboardTheme } from "../../teacher/dashboard-theme-context";
+import { SectionLabel, BrutalistCard, BrutalistButton, BrutalistInput, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface ProfileData {
   id: string;
@@ -15,6 +16,8 @@ interface ProfileData {
 
 export default function StudentProfilePage() {
   const router = useRouter();
+  const { isDark } = useDashboardTheme();
+  const t = themeTokens(isDark);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -35,7 +38,6 @@ export default function StudentProfilePage() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  // Fetch profile data on mount
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -46,9 +48,7 @@ export default function StudentProfilePage() {
           return;
         }
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch profile");
-        }
+        if (!res.ok) throw new Error("Failed to fetch profile");
 
         const data = await res.json();
         setProfile(data.profile);
@@ -69,14 +69,12 @@ export default function StudentProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       setError("Invalid file type. Only JPEG, PNG, and WebP are allowed.");
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError("File size exceeds 5MB limit");
       return;
@@ -104,7 +102,6 @@ export default function StudentProfilePage() {
       setProfileImagePreview(data.url);
       setSuccess("Profile image updated successfully!");
 
-      // Refresh profile data
       const profileRes = await fetch("/api/profile");
       if (profileRes.ok) {
         const profileData = await profileRes.json();
@@ -133,9 +130,7 @@ export default function StudentProfilePage() {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: fullName,
-        }),
+        body: JSON.stringify({ full_name: fullName }),
       });
 
       if (!res.ok) {
@@ -179,10 +174,7 @@ export default function StudentProfilePage() {
       const res = await fetch("/api/profile/password", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-        }),
+        body: JSON.stringify({ currentPassword, newPassword }),
       });
 
       if (!res.ok) {
@@ -221,210 +213,196 @@ export default function StudentProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+      <div className="flex items-center justify-center py-20">
+        <p className={`font-mono text-sm ${t.textMid}`}>LOADING...</p>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Error loading profile</div>
+      <div className="flex items-center justify-center py-20">
+        <p className={`font-mono text-sm ${t.textMid}`}>ERROR LOADING PROFILE</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 h-16">
-        <div className="max-w-[1200px] mx-auto px-6 h-full flex items-center justify-between">
+    <div className="mx-auto max-w-[800px]">
+      {/* Back link */}
+      <button
+        onClick={() => router.push("/student")}
+        className={`mb-6 inline-flex items-center gap-2 font-mono text-xs tracking-wider ${t.textMid} transition-colors ${isDark ? 'hover:text-white' : 'hover:text-black'}`}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        BACK TO DASHBOARD
+      </button>
+
+      <SectionLabel num="002" label="PROFILE & SETTINGS" isDark={isDark} />
+
+      {/* Profile Section */}
+      <BrutalistCard isDark={isDark} className="mb-6">
+        <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-6`}>PROFILE INFORMATION</h2>
+
+        {/* Profile Picture */}
+        <div className="mb-6">
+          <label className={`block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-3`}>
+            PROFILE PICTURE
+          </label>
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/student")}
-              className="text-gray-600 hover:text-black transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className={`w-20 h-20 border ${t.borderDim} ${t.text} flex items-center justify-center font-mono text-2xl font-bold overflow-hidden`}>
+              {profileImagePreview ? (
+                <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                getInitials(fullName)
+              )}
+            </div>
+            <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <BrutalistButton
+                isDark={isDark}
+                variant="secondary"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingImage}
+                isLoading={isUploadingImage}
               >
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <h1 className="text-xl font-bold tracking-tight text-black">Profile & Settings</h1>
+                {isUploadingImage ? "UPLOADING..." : "CHANGE PHOTO"}
+              </BrutalistButton>
+            </div>
+          </div>
+          <p className={`mt-2 font-mono text-[10px] ${t.textDim} tracking-wider`}>
+            JPG, PNG or WebP. Max size 5MB.
+          </p>
+        </div>
+
+        {/* Full Name */}
+        <div className="mb-6">
+          <BrutalistInput
+            isDark={isDark}
+            label="FULL NAME"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Enter your full name"
+          />
+        </div>
+
+        {/* Email (read-only) */}
+        <div className="mb-6">
+          <BrutalistInput
+            isDark={isDark}
+            label="EMAIL"
+            type="email"
+            value={profile.email}
+            disabled
+          />
+          <p className={`mt-1 font-mono text-[10px] ${t.textDim} tracking-wider`}>
+            Email cannot be changed
+          </p>
+        </div>
+
+        {/* Messages */}
+        {error && (
+          <div className={`mb-4 p-3 border font-mono text-xs ${isDark ? 'border-red-500/40 text-red-400' : 'border-red-500/60 text-red-600'}`}>
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className={`mb-4 p-3 border font-mono text-xs ${isDark ? 'border-green-500/40 text-green-400' : 'border-green-500/60 text-green-600'}`}>
+            {success}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <BrutalistButton
+            isDark={isDark}
+            onClick={handleSaveProfile}
+            isLoading={isSaving}
+            disabled={isSaving}
+          >
+            SAVE CHANGES
+          </BrutalistButton>
+        </div>
+      </BrutalistCard>
+
+      {/* Password Section */}
+      <BrutalistCard isDark={isDark} className="mb-6">
+        <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-6`}>CHANGE PASSWORD</h2>
+
+        <div className="space-y-4 mb-6">
+          <BrutalistInput
+            isDark={isDark}
+            label="CURRENT PASSWORD"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Enter current password"
+          />
+          <BrutalistInput
+            isDark={isDark}
+            label="NEW PASSWORD"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Enter new password (min 6 characters)"
+          />
+          <BrutalistInput
+            isDark={isDark}
+            label="CONFIRM NEW PASSWORD"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm new password"
+          />
+        </div>
+
+        {passwordError && (
+          <div className={`mb-4 p-3 border font-mono text-xs ${isDark ? 'border-red-500/40 text-red-400' : 'border-red-500/60 text-red-600'}`}>
+            {passwordError}
+          </div>
+        )}
+        {passwordSuccess && (
+          <div className={`mb-4 p-3 border font-mono text-xs ${isDark ? 'border-green-500/40 text-green-400' : 'border-green-500/60 text-green-600'}`}>
+            {passwordSuccess}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <BrutalistButton
+            isDark={isDark}
+            onClick={handleChangePassword}
+            isLoading={isChangingPassword}
+            disabled={isChangingPassword}
+          >
+            CHANGE PASSWORD
+          </BrutalistButton>
+        </div>
+      </BrutalistCard>
+
+      {/* Account Info */}
+      <BrutalistCard isDark={isDark}>
+        <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-6`}>ACCOUNT INFORMATION</h2>
+
+        <div className="space-y-4">
+          <div className={`flex justify-between py-3 border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
+            <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>ACCOUNT TYPE</span>
+            <span className={`font-mono text-xs font-bold ${t.text} tracking-wider uppercase`}>{profile.role}</span>
+          </div>
+          <div className="flex justify-between py-3">
+            <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>MEMBER SINCE</span>
+            <span className={`font-mono text-xs font-bold ${t.text} tracking-wider`}>{formatDate(profile.created_at)}</span>
           </div>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-[800px] mx-auto px-6 py-8">
-        {/* Profile Section */}
-        <section className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-black mb-6">Profile Information</h2>
-
-          {/* Profile Picture */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Profile Picture
-            </label>
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-2xl font-semibold overflow-hidden">
-                {profileImagePreview ? (
-                  <img
-                    src={profileImagePreview}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  getInitials(fullName)
-                )}
-              </div>
-              <div className="flex gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                />
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  isLoading={isUploadingImage}
-                >
-                  {isUploadingImage ? "Uploading..." : "Change Photo"}
-                </Button>
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-gray-500">
-              JPG, PNG or WebP. Max size 5MB.
-            </p>
-          </div>
-
-          {/* Full Name */}
-          <div className="mb-6">
-            <Input
-              label="Full Name"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your full name"
-            />
-          </div>
-
-          {/* Email (read-only) */}
-          <div className="mb-6">
-            <Input
-              label="Email"
-              type="email"
-              value={profile.email}
-              disabled
-              className="bg-gray-50"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Email cannot be changed
-            </p>
-          </div>
-
-          {/* Error/Success Messages */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
-              {success}
-            </div>
-          )}
-
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSaveProfile}
-              isLoading={isSaving}
-              disabled={isSaving}
-            >
-              Save Changes
-            </Button>
-          </div>
-        </section>
-
-        {/* Password Section */}
-        <section className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-black mb-6">Change Password</h2>
-
-          <div className="space-y-4 mb-6">
-            <Input
-              label="Current Password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Enter current password"
-            />
-            <Input
-              label="New Password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password (min 6 characters)"
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-            />
-          </div>
-
-          {/* Password Error/Success Messages */}
-          {passwordError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-              {passwordError}
-            </div>
-          )}
-          {passwordSuccess && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-600">
-              {passwordSuccess}
-            </div>
-          )}
-
-          <div className="flex justify-end">
-            <Button
-              onClick={handleChangePassword}
-              isLoading={isChangingPassword}
-              disabled={isChangingPassword}
-            >
-              Change Password
-            </Button>
-          </div>
-        </section>
-
-        {/* Account Info Section */}
-        <section className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-black mb-6">Account Information</h2>
-
-          <div className="space-y-4">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-sm text-gray-500">Account Type</span>
-              <span className="text-sm font-medium text-black capitalize">{profile.role}</span>
-            </div>
-            <div className="flex justify-between py-3">
-              <span className="text-sm text-gray-500">Member Since</span>
-              <span className="text-sm font-medium text-black">{formatDate(profile.created_at)}</span>
-            </div>
-          </div>
-        </section>
-      </main>
+      </BrutalistCard>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface ThemeProps {
   isDark: boolean;
 }
@@ -50,9 +52,12 @@ export function AuthHeader({ isDark, onToggle }: Readonly<AuthHeaderProps>) {
     <div className={`absolute top-0 left-0 right-0 z-20 border-b ${border} transition-colors duration-500`}>
       <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between">
         <div className="flex items-center gap-2 lg:gap-4">
-          <div className={`font-mono ${text} text-xl lg:text-2xl font-bold tracking-widest italic transform -skew-x-12 transition-colors duration-500`}>
+          <Link
+            href="/"
+            className={`font-mono ${text} text-xl lg:text-2xl font-bold tracking-widest italic transform -skew-x-12 transition-colors duration-500 hover:opacity-70`}
+          >
             PRIMETIME
-          </div>
+          </Link>
           <div className={`h-3 lg:h-4 w-px ${divider} transition-colors duration-500`} />
           <span className={`${textMid} text-[8px] lg:text-[10px] font-mono transition-colors duration-500`}>EST. 2025</span>
         </div>

@@ -133,10 +133,13 @@ export default function HeroAscii({ isDark: isDarkProp, onToggle }: HeroAsciiPro
 
   return (
     <main className={`relative min-h-screen overflow-hidden transition-colors duration-500 ${bg}`}>
-      {/* Vitruvian man animation - hidden on mobile */}
+      {/* Vitruvian man animation — visible on all screens */}
       <div
-        className="absolute inset-0 w-full h-full hidden lg:block transition-all duration-500"
-        style={isDark ? {} : { filter: 'invert(1)', opacity: 0.85 }}
+        className="absolute inset-0 w-full h-full transition-all duration-500"
+        style={isDark
+          ? { opacity: 1 }
+          : { filter: 'invert(1)', opacity: 0.85 }
+        }
       >
         <div
           data-us-project="whwOGlfJ5Rz2rHaEUgHl"
@@ -144,8 +147,15 @@ export default function HeroAscii({ isDark: isDarkProp, onToggle }: HeroAsciiPro
         />
       </div>
 
-      {/* Mobile background */}
-      {isDark && <div className="absolute inset-0 w-full h-full lg:hidden stars-bg" />}
+      {/* Mobile readability overlay — gradient fades from solid bg on left to transparent on right */}
+      <div
+        className="absolute inset-0 z-[1] lg:hidden pointer-events-none transition-colors duration-500"
+        style={{
+          background: isDark
+            ? 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.15) 100%)'
+            : 'linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.15) 100%)',
+        }}
+      />
 
       {/* Top Header */}
       <div className={`absolute top-0 left-0 right-0 z-20 border-b ${border} transition-colors duration-500`}>

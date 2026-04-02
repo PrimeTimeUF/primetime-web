@@ -337,8 +337,8 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 {/* Connector line (desktop) */}
                 {i < steps.length - 1 && (
                   <div
-                    className={`hidden lg:block absolute top-[28px] left-1/2 w-full h-px ${isDark ? 'bg-white/20' : 'bg-black/15'} z-0`}
-                    style={{ left: '60%' }}
+                    className={`hidden lg:block absolute h-px ${isDark ? 'bg-white/20' : 'bg-black/15'} z-0`}
+                    style={{ top: '44px', left: '64px', width: 'calc(100% - 40px)' }}
                   />
                 )}
                 {/* Connector line (mobile) */}

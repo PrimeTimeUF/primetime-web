@@ -8,6 +8,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
+vi.mock("../auth-theme-context", () => ({
+  useAuthTheme: () => ({ isDark: true, toggle: vi.fn() }),
+}));
+
 global.fetch = vi.fn();
 
 async function fillValidForm(overrides: Partial<{
@@ -28,10 +32,10 @@ async function fillValidForm(overrides: Partial<{
     ...overrides,
   };
 
-  await userEvent.type(screen.getByLabelText("Full Name"), opts.fullName);
-  await userEvent.type(screen.getByLabelText("Email"), opts.email);
-  await userEvent.type(screen.getByLabelText("Password"), opts.password);
-  await userEvent.type(screen.getByLabelText("Confirm Password"), opts.confirmPassword);
+  await userEvent.type(screen.getByLabelText(/full name/i), opts.fullName);
+  await userEvent.type(screen.getByLabelText(/^email$/i), opts.email);
+  await userEvent.type(screen.getByLabelText(/^password$/i), opts.password);
+  await userEvent.type(screen.getByLabelText(/confirm password/i), opts.confirmPassword);
 
   if (opts.role === "teacher") {
     await userEvent.click(screen.getByRole("button", { name: /Teacher/i }));
@@ -47,17 +51,17 @@ describe("SignUpPage", () => {
     vi.clearAllMocks();
   });
 
-  it("renders the PrimeTime heading", () => {
+  it("renders the Create Account heading", () => {
     render(<SignUpPage />);
-    expect(screen.getByRole("heading", { name: "PrimeTime" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /create account/i })).toBeInTheDocument();
   });
 
   it("renders all form fields", () => {
     render(<SignUpPage />);
-    expect(screen.getByLabelText("Full Name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Password")).toBeInTheDocument();
-    expect(screen.getByLabelText("Confirm Password")).toBeInTheDocument();
+    expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
   });
 
   it("renders role selector", () => {
@@ -78,7 +82,6 @@ describe("SignUpPage", () => {
 
   it("shows error when full name is empty on submit", async () => {
     render(<SignUpPage />);
-    // fireEvent.submit bypasses HTML5 required validation so handleSubmit runs
     const form = document.querySelector("form")!;
     fireEvent.submit(form);
     await waitFor(() => {
@@ -88,10 +91,10 @@ describe("SignUpPage", () => {
 
   it("shows error when passwords do not match", async () => {
     render(<SignUpPage />);
-    await userEvent.type(screen.getByLabelText("Full Name"), "Jane");
-    await userEvent.type(screen.getByLabelText("Email"), "jane@test.com");
-    await userEvent.type(screen.getByLabelText("Password"), "Password1!");
-    await userEvent.type(screen.getByLabelText("Confirm Password"), "DifferentPass1!");
+    await userEvent.type(screen.getByLabelText(/full name/i), "Jane");
+    await userEvent.type(screen.getByLabelText(/^email$/i), "jane@test.com");
+    await userEvent.type(screen.getByLabelText(/^password$/i), "Password1!");
+    await userEvent.type(screen.getByLabelText(/confirm password/i), "DifferentPass1!");
     await userEvent.click(screen.getByRole("button", { name: /Create Account/i }));
     await waitFor(() => {
       expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
@@ -100,22 +103,22 @@ describe("SignUpPage", () => {
 
   it("shows error when password is too short", async () => {
     render(<SignUpPage />);
-    await userEvent.type(screen.getByLabelText("Full Name"), "Jane");
-    await userEvent.type(screen.getByLabelText("Email"), "jane@test.com");
-    await userEvent.type(screen.getByLabelText("Password"), "short");
-    await userEvent.type(screen.getByLabelText("Confirm Password"), "short");
+    await userEvent.type(screen.getByLabelText(/full name/i), "Jane");
+    await userEvent.type(screen.getByLabelText(/^email$/i), "jane@test.com");
+    await userEvent.type(screen.getByLabelText(/^password$/i), "short");
+    await userEvent.type(screen.getByLabelText(/confirm password/i), "short");
     await userEvent.click(screen.getByRole("button", { name: /Create Account/i }));
     await waitFor(() => {
-      expect(screen.getByText("Password must be at least 8 characters long")).toBeInTheDocument();
+      expect(screen.getByText("Password must be at least 8 characters")).toBeInTheDocument();
     });
   });
 
   it("shows error when terms are not accepted", async () => {
     render(<SignUpPage />);
-    await userEvent.type(screen.getByLabelText("Full Name"), "Jane");
-    await userEvent.type(screen.getByLabelText("Email"), "jane@test.com");
-    await userEvent.type(screen.getByLabelText("Password"), "Password1!");
-    await userEvent.type(screen.getByLabelText("Confirm Password"), "Password1!");
+    await userEvent.type(screen.getByLabelText(/full name/i), "Jane");
+    await userEvent.type(screen.getByLabelText(/^email$/i), "jane@test.com");
+    await userEvent.type(screen.getByLabelText(/^password$/i), "Password1!");
+    await userEvent.type(screen.getByLabelText(/confirm password/i), "Password1!");
     await userEvent.click(screen.getByRole("button", { name: /Create Account/i }));
     await waitFor(() => {
       expect(screen.getByText("You must accept the terms to continue")).toBeInTheDocument();
@@ -124,25 +127,25 @@ describe("SignUpPage", () => {
 
   it("shows weak password indicator for weak passwords", async () => {
     render(<SignUpPage />);
-    await userEvent.type(screen.getByLabelText("Password"), "weak");
+    await userEvent.type(screen.getByLabelText(/^password$/i), "weak");
     await waitFor(() => {
-      expect(screen.getByText("Weak password")).toBeInTheDocument();
+      expect(screen.getByText("WEAK")).toBeInTheDocument();
     });
   });
 
   it("shows strong password indicator for strong passwords", async () => {
     render(<SignUpPage />);
-    await userEvent.type(screen.getByLabelText("Password"), "StrongPass1!");
+    await userEvent.type(screen.getByLabelText(/^password$/i), "StrongPass1!");
     await waitFor(() => {
-      expect(screen.getByText("Strong password")).toBeInTheDocument();
+      expect(screen.getByText("STRONG")).toBeInTheDocument();
     });
   });
 
   it("shows invalid email error on blur with bad email", async () => {
     render(<SignUpPage />);
-    const emailInput = screen.getByLabelText("Email");
+    const emailInput = screen.getByLabelText(/^email$/i);
     await userEvent.type(emailInput, "notanemail");
-    await userEvent.tab(); // trigger blur
+    await userEvent.tab();
     await waitFor(() => {
       expect(screen.getByText("Please enter a valid email address")).toBeInTheDocument();
     });

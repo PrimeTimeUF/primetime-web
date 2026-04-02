@@ -208,10 +208,11 @@ export default function SignUpPage() {
 
         {/* Full Name */}
         <div className="flex flex-col gap-1.5">
-          <label className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
+          <label htmlFor="fullName" className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
             FULL NAME
           </label>
           <input
+            id="fullName"
             type="text"
             required
             autoComplete="name"
@@ -227,10 +228,11 @@ export default function SignUpPage() {
 
         {/* Email */}
         <div className="flex flex-col gap-1.5">
-          <label className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
+          <label htmlFor="email" className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
             EMAIL
           </label>
           <input
+            id="email"
             type="email"
             required
             autoComplete="email"
@@ -247,10 +249,11 @@ export default function SignUpPage() {
 
         {/* Password */}
         <div className="flex flex-col gap-1.5">
-          <label className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
+          <label htmlFor="password" className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
             PASSWORD
           </label>
           <input
+            id="password"
             type="password"
             required
             autoComplete="new-password"
@@ -283,10 +286,11 @@ export default function SignUpPage() {
 
         {/* Confirm Password */}
         <div className="flex flex-col gap-1.5">
-          <label className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
+          <label htmlFor="confirmPassword" className={`font-mono text-[10px] ${textDim} tracking-[0.25em] uppercase`}>
             CONFIRM PASSWORD
           </label>
           <input
+            id="confirmPassword"
             type="password"
             required
             autoComplete="new-password"

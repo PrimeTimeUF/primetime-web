@@ -343,23 +343,31 @@ export default function LandingSections({ isDark }: LandingSectionsProps) {
                 )}
                 {/* Connector line (mobile) */}
                 {i < steps.length - 1 && (
-                  <div className={`lg:hidden absolute top-full left-8 w-px h-8 ${isDark ? 'bg-white/20' : 'bg-black/15'}`} />
+                  <div
+                    className={`lg:hidden absolute w-px ${isDark ? 'bg-white/20' : 'bg-black/15'}`}
+                    style={{ top: '64px', left: '44px', height: 'calc(100% - 40px)' }}
+                  />
                 )}
 
                 <div
                   className={`pt-reveal-sm ${howVisible ? 'pt-visible' : ''} relative z-10 p-6 lg:pr-8`}
                   style={{ animationDelay: `${i * 120}ms` }}
                 >
-                  {/* Step indicator */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 border ${border} flex items-center justify-center relative`}>
-                      <span className={`font-mono text-xs font-bold ${text}`}>{step.num}</span>
-                      <div className={`absolute -top-0.5 -left-0.5 w-2 h-2 border-t border-l ${isDark ? 'border-white/40' : 'border-black/30'}`} />
+                  {/* Mobile: timeline row (box left, text right). Desktop: stacked */}
+                  <div className="flex items-start gap-4 lg:block">
+                    {/* Step indicator */}
+                    <div className="flex-shrink-0 lg:flex lg:items-center lg:gap-3 lg:mb-4">
+                      <div className={`w-10 h-10 border ${border} ${bg} flex items-center justify-center relative`}>
+                        <span className={`font-mono text-xs font-bold ${text}`}>{step.num}</span>
+                        <div className={`absolute -top-0.5 -left-0.5 w-2 h-2 border-t border-l ${isDark ? 'border-white/40' : 'border-black/30'}`} />
+                      </div>
                     </div>
-                    <div className={`h-px flex-1 lg:hidden ${isDark ? 'bg-white/15' : 'bg-black/10'}`} />
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 pt-1 lg:pt-0">
+                      <h3 className={`font-mono font-bold text-sm ${text} tracking-[0.25em] mb-2`}>{step.title}</h3>
+                      <p className={`font-mono text-xs ${textMid} leading-relaxed`}>{step.body}</p>
+                    </div>
                   </div>
-                  <h3 className={`font-mono font-bold text-sm ${text} tracking-[0.25em] mb-2`}>{step.title}</h3>
-                  <p className={`font-mono text-xs ${textMid} leading-relaxed`}>{step.body}</p>
                 </div>
               </div>
             ))}

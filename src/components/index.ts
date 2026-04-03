@@ -10,3 +10,6 @@ export { default as AudioPlayer } from "./features/AudioPlayer";
 export { default as AnalyticsStatsBar } from "./features/AnalyticsStatsBar";
 export { default as SessionHistoryTable } from "./features/SessionHistoryTable";
 export { default as AssignSessionModal } from "./features/AssignSessionModal";
+export { default as TeacherStatsBar } from "./features/TeacherStatsBar";
+export { default as TeacherSessionStatsTable } from "./features/TeacherSessionStatsTable";
+export { default as TeacherStudentStatsTable } from "./features/TeacherStudentStatsTable";

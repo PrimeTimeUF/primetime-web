@@ -476,24 +476,30 @@ function QuestionCard({ question, isDark }: Readonly<QuestionCardProps>) {
 
           let optionClasses = "flex cursor-pointer items-center gap-3 border p-4 transition-all";
           let letterClasses = "flex h-8 w-8 shrink-0 items-center justify-center border font-mono text-xs font-bold transition-all";
+          let textClasses = "text-left font-mono text-sm";
 
           if (revealed) {
             if (isCorrect) {
-              optionClasses += " border-green-600 bg-green-50";
+              optionClasses += ` border-green-600 ${isDark ? 'bg-green-900/30' : 'bg-green-50'}`;
               letterClasses += " border-green-600 bg-green-600 text-white";
+              textClasses += isDark ? " text-green-100" : " text-green-900";
             } else if (isSelected && !isCorrect) {
-              optionClasses += " border-red-600 bg-red-50";
+              optionClasses += ` border-red-600 ${isDark ? 'bg-red-900/30' : 'bg-red-50'}`;
               letterClasses += " border-red-600 bg-red-600 text-white";
+              textClasses += isDark ? " text-red-100" : " text-red-900";
             } else {
               optionClasses += ` ${isDark ? 'border-white/10' : 'border-black/10'} bg-transparent opacity-50`;
               letterClasses += ` ${isDark ? 'border-white/20' : 'border-black/20'} bg-transparent ${isDark ? 'text-white/40' : 'text-black/40'}`;
+              textClasses += ` ${textMid}`;
             }
           } else if (isSelected) {
             optionClasses += ` ${isDark ? 'border-white' : 'border-black'} ${isDark ? 'bg-black' : 'bg-white'}`;
             letterClasses += ` ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`;
+            textClasses += ` ${textMid}`;
           } else {
             optionClasses += ` ${isDark ? 'border-white/15 hover:border-white/40' : 'border-black/15 hover:border-black/40'} bg-transparent`;
             letterClasses += ` ${isDark ? 'border-white/30' : 'border-black/30'} bg-transparent ${isDark ? 'text-white/60' : 'text-black/60'}`;
+            textClasses += ` ${textMid}`;
           }
 
           return (
@@ -506,7 +512,7 @@ function QuestionCard({ question, isDark }: Readonly<QuestionCardProps>) {
               <span className={letterClasses}>
                 {opt.key.toUpperCase()}
               </span>
-              <span className={`text-left font-mono text-sm ${textMid}`}>{opt.text}</span>
+              <span className={textClasses}>{opt.text}</span>
             </button>
           );
         })}

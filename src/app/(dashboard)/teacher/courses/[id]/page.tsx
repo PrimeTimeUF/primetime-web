@@ -127,10 +127,6 @@ export default function TeacherCourseDetailPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <BrutalistButton isDark={isDark} variant="secondary" disabled>SETTINGS</BrutalistButton>
-          <BrutalistButton isDark={isDark} disabled>UPLOAD</BrutalistButton>
-        </div>
       </div>
 
       {/* Tabs */}

@@ -218,6 +218,15 @@ Guidelines:
 - Explanations should be concise and educational
 - Distractors should be plausible but clearly wrong
 
+ANSWER CHOICE LENGTH REQUIREMENTS (CRITICAL):
+- All four answer choices MUST be similar in length
+- Do NOT make the correct answer longer or more detailed than the incorrect options
+- Do NOT make the correct answer shorter than the incorrect options
+- Each answer choice should contain roughly the same number of words (within 1-3 words of each other)
+- If the correct answer needs to be detailed, make ALL options equally detailed
+- If the correct answer is concise, make ALL options equally concise
+- Students should not be able to identify the correct answer based on length alone
+
 IMPORTANT: Return ONLY the JSON object, no markdown formatting or code blocks.`;
 
 async function generateQuestions(

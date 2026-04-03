@@ -280,9 +280,9 @@ function MaterialsTab({ courseId, sessions, isDark }: Readonly<MaterialsTabProps
               <label className={`mb-2 block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>LECTURE NAME</label>
               {existingLectures.length > 0 ? (
                 <>
-                  <select value={lectureName} onChange={(e) => setLectureName(e.target.value)} className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-xs p-2 mb-2`}>
-                    <option value="">-- SELECT EXISTING --</option>
-                    {existingLectures.map((lecture) => (<option key={lecture} value={lecture}>{lecture}</option>))}
+                  <select value={lectureName} onChange={(e) => setLectureName(e.target.value)} className={`w-full border ${t.border} ${isDark ? 'bg-black' : 'bg-white'} ${t.text} font-mono text-xs p-2 mb-2`}>
+                    <option value="" className={isDark ? 'bg-black text-white' : 'bg-white text-black'}>-- SELECT EXISTING --</option>
+                    {existingLectures.map((lecture) => (<option key={lecture} value={lecture} className={isDark ? 'bg-black text-white' : 'bg-white text-black'}>{lecture}</option>))}
                   </select>
                   <p className={`my-2 text-center font-mono text-[10px] ${t.textDim}`}>OR</p>
                   <input type="text" value={lectureName} onChange={(e) => setLectureName(e.target.value)} placeholder="Type a new lecture name" className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-xs p-2`} />

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Modal } from "@/components";
+import { Modal } from "@/components";
+import { BrutalistButton, themeTokens } from "@/components/ui/dashboard-primitives";
 import type { PrimingSessionListItem } from "@/lib/types/priming-session";
 
 interface AssignSessionModalProps {
@@ -11,6 +12,7 @@ interface AssignSessionModalProps {
   sessions: PrimingSessionListItem[];
   assignedSessionIds: Set<string>;
   onAssigned: () => void;
+  isDark?: boolean;
 }
 
 export default function AssignSessionModal({
@@ -20,7 +22,9 @@ export default function AssignSessionModal({
   sessions,
   assignedSessionIds,
   onAssigned,
+  isDark = true,
 }: Readonly<AssignSessionModalProps>) {
+  const t = themeTokens(isDark);
   const [selectedSessionId, setSelectedSessionId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +88,7 @@ export default function AssignSessionModal({
 
   return (
     <Modal open={open} onOpenChange={handleClose}>
-      <Modal.Content size="md">
+      <Modal.Content size="md" isDark={isDark}>
         <Modal.Title>Assign Session to Students</Modal.Title>
         <Modal.Description>
           Select a completed priming session and set a due date for your
@@ -94,11 +98,11 @@ export default function AssignSessionModal({
         <div className="mt-6 space-y-6">
           {/* Session selector */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className={`mb-2 block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
               Priming Session
             </label>
             {availableSessions.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className={`font-mono text-xs ${t.textMid}`}>
                 No unassigned completed sessions available. Create and complete
                 a priming session first.
               </p>
@@ -106,12 +110,12 @@ export default function AssignSessionModal({
               <select
                 value={selectedSessionId}
                 onChange={(e) => setSelectedSessionId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 focus:outline-none focus:border-current transition-colors duration-200`}
                 disabled={isLoading}
               >
-                <option value="">Select a session...</option>
+                <option value="" className={isDark ? "bg-black" : "bg-white"}>Select a session...</option>
                 {availableSessions.map((session) => (
-                  <option key={session.id} value={session.id}>
+                  <option key={session.id} value={session.id} className={isDark ? "bg-black" : "bg-white"}>
                     {session.title || session.lecture_name || "Untitled session"}
                     {session.duration ? ` (${session.duration} min)` : ""}
                   </option>
@@ -122,7 +126,7 @@ export default function AssignSessionModal({
 
           {/* Due date picker */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className={`mb-2 block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
               Due Date
             </label>
             <input
@@ -130,22 +134,25 @@ export default function AssignSessionModal({
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               min={minDate}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 focus:outline-none focus:border-current transition-colors duration-200`}
               disabled={isLoading}
             />
           </div>
 
           {/* Error message */}
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && (
+            <p className={`font-mono text-xs ${isDark ? "text-red-400" : "text-red-600"}`}>{error}</p>
+          )}
         </div>
 
         <Modal.Footer>
           <Modal.Close>
-            <Button variant="secondary" disabled={isLoading}>
+            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading}>
               Cancel
-            </Button>
+            </BrutalistButton>
           </Modal.Close>
-          <Button
+          <BrutalistButton
+            isDark={isDark}
             onClick={handleSubmit}
             disabled={
               isLoading ||
@@ -154,8 +161,8 @@ export default function AssignSessionModal({
               availableSessions.length === 0
             }
           >
-            {isLoading ? "Assigning..." : "Assign Session"}
-          </Button>
+            {isLoading ? "ASSIGNING..." : "ASSIGN SESSION"}
+          </BrutalistButton>
         </Modal.Footer>
       </Modal.Content>
     </Modal>

@@ -149,6 +149,7 @@ export default function TeacherDashboardPage() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onCourseCreated={fetchCourses}
+        isDark={isDark}
       />
     </div>
   );

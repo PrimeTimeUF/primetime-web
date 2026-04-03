@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Button, Modal } from "@/components";
+import { Modal } from "@/components";
+import { BrutalistButton, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface CreateSessionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   courseId: string;
   onCreated: () => void;
+  isDark?: boolean;
 }
 
 interface DurationOption {
@@ -39,7 +41,9 @@ export default function CreateSessionModal({
   onOpenChange,
   courseId,
   onCreated,
+  isDark = true,
 }: Readonly<CreateSessionModalProps>) {
+  const t = themeTokens(isDark);
   const [lectureNames, setLectureNames] = useState<string[]>([]);
   const [selectedLecture, setSelectedLecture] = useState("");
   const [selectedDuration, setSelectedDuration] = useState<10 | 15 | 30>(15);
@@ -116,7 +120,7 @@ export default function CreateSessionModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <Modal.Content size="md">
+      <Modal.Content size="md" isDark={isDark}>
         <Modal.Title>Create Priming Session</Modal.Title>
         <Modal.Description>
           Select a lecture group and session duration to generate a priming
@@ -126,13 +130,13 @@ export default function CreateSessionModal({
         <div className="mt-6 space-y-6">
           {/* Lecture group selector */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className={`mb-2 block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
               Lecture Group
             </label>
             {isFetching ? (
-              <p className="text-sm text-gray-400">Loading lectures...</p>
+              <p className={`font-mono text-xs ${t.textMid}`}>Loading lectures...</p>
             ) : lectureNames.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className={`font-mono text-xs ${t.textMid}`}>
                 No lecture groups found. Upload PDF materials with a lecture name
                 first.
               </p>
@@ -140,12 +144,12 @@ export default function CreateSessionModal({
               <select
                 value={selectedLecture}
                 onChange={(e) => setSelectedLecture(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 focus:outline-none focus:border-current transition-colors duration-200`}
                 disabled={isLoading}
               >
-                <option value="">Select a lecture...</option>
+                <option value="" className={isDark ? "bg-black" : "bg-white"}>Select a lecture...</option>
                 {lectureNames.map((name) => (
-                  <option key={name} value={name}>
+                  <option key={name} value={name} className={isDark ? "bg-black" : "bg-white"}>
                     {name}
                   </option>
                 ))}
@@ -155,7 +159,7 @@ export default function CreateSessionModal({
 
           {/* Duration selector */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className={`mb-2 block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
               Session Duration
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -165,16 +169,16 @@ export default function CreateSessionModal({
                   type="button"
                   onClick={() => setSelectedDuration(option.value)}
                   disabled={isLoading}
-                  className={`rounded-lg border-2 p-3 text-left transition-colors ${
+                  className={`border-2 p-3 text-left transition-colors duration-200 ${
                     selectedDuration === option.value
-                      ? "border-black bg-gray-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? `${t.borderFull} ${t.cardBg}`
+                      : `${t.border} ${isDark ? "hover:border-white/30" : "hover:border-black/25"}`
                   }`}
                 >
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className={`font-mono text-sm font-bold tracking-wider ${t.text}`}>
                     {option.label}
                   </p>
-                  <p className="mt-1 text-xs leading-snug text-gray-500">
+                  <p className={`mt-1 font-mono text-[10px] leading-snug ${t.textMid}`}>
                     {option.description}
                   </p>
                 </button>
@@ -183,21 +187,24 @@ export default function CreateSessionModal({
           </div>
 
           {/* Error message */}
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && (
+            <p className={`font-mono text-xs ${isDark ? "text-red-400" : "text-red-600"}`}>{error}</p>
+          )}
         </div>
 
         <Modal.Footer>
           <Modal.Close>
-            <Button variant="secondary" disabled={isLoading}>
+            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading}>
               Cancel
-            </Button>
+            </BrutalistButton>
           </Modal.Close>
-          <Button
+          <BrutalistButton
+            isDark={isDark}
             onClick={handleSubmit}
             disabled={isLoading || !selectedLecture || lectureNames.length === 0}
           >
-            {isLoading ? "Creating..." : "Create Session"}
-          </Button>
+            {isLoading ? "CREATING..." : "CREATE SESSION"}
+          </BrutalistButton>
         </Modal.Footer>
       </Modal.Content>
     </Modal>

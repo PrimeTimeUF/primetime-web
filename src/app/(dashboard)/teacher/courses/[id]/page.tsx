@@ -522,8 +522,8 @@ function SessionsTab({ courseId, sessions, isLoading, onRefresh, isDark }: Reado
         }>CREATE SESSION</BrutalistButton>
       </div>
 
-      <CreateSessionModal open={showCreateModal} onOpenChange={setShowCreateModal} courseId={courseId} onCreated={handleSessionCreated} />
-      <AssignSessionModal open={showAssignModal} onOpenChange={setShowAssignModal} courseId={courseId} sessions={sessions} assignedSessionIds={assignedSessionIds} onAssigned={handleAssigned} />
+      <CreateSessionModal open={showCreateModal} onOpenChange={setShowCreateModal} courseId={courseId} onCreated={handleSessionCreated} isDark={isDark} />
+      <AssignSessionModal open={showAssignModal} onOpenChange={setShowAssignModal} courseId={courseId} sessions={sessions} assignedSessionIds={assignedSessionIds} onAssigned={handleAssigned} isDark={isDark} />
 
       {sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">

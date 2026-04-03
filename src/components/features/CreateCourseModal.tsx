@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { Button, Input, Modal } from "@/components";
+import { Modal } from "@/components";
+import { BrutalistButton, BrutalistInput, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface CreateCourseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCourseCreated: () => void;
+  isDark?: boolean;
 }
 
 export default function CreateCourseModal({
   open,
   onOpenChange,
   onCourseCreated,
+  isDark = true,
 }: Readonly<CreateCourseModalProps>) {
+  const t = themeTokens(isDark);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [courseCode, setCourseCode] = useState("");
@@ -73,14 +77,16 @@ export default function CreateCourseModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <Modal.Content size="md">
+      <Modal.Content size="md" isDark={isDark}>
         <Modal.Title>Create Course</Modal.Title>
         <Modal.Description>
           Fill in the details below to create a new course.
         </Modal.Description>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Input
+          <BrutalistInput
+            isDark={isDark}
+            id="course-title"
             label="Course Title"
             placeholder="e.g. Introduction to Psychology"
             value={title}
@@ -88,11 +94,8 @@ export default function CreateCourseModal({
             required
           />
 
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="course-description"
-              className="text-sm font-medium text-gray-700"
-            >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="course-description" className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
               Description
             </label>
             <textarea
@@ -101,19 +104,23 @@ export default function CreateCourseModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+              className={`w-full border ${t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 placeholder:opacity-30 focus:outline-none focus:border-current transition-colors duration-200 resize-none`}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
+            <BrutalistInput
+              isDark={isDark}
+              id="course-code"
               label="Course Code"
               placeholder="e.g. PSY 101"
               value={courseCode}
               onChange={(e) => setCourseCode(e.target.value)}
               required
             />
-            <Input
+            <BrutalistInput
+              isDark={isDark}
+              id="course-semester"
               label="Semester"
               placeholder="e.g. Fall 2026"
               value={semester}
@@ -123,18 +130,18 @@ export default function CreateCourseModal({
           </div>
 
           {error && (
-            <p className="text-sm text-red-500">{error}</p>
+            <p className={`font-mono text-xs ${isDark ? "text-red-400" : "text-red-600"}`}>{error}</p>
           )}
 
           <Modal.Footer>
             <Modal.Close>
-              <Button type="button" variant="secondary">
+              <BrutalistButton type="button" isDark={isDark} variant="secondary" disabled={isSubmitting}>
                 Cancel
-              </Button>
+              </BrutalistButton>
             </Modal.Close>
-            <Button type="submit" isLoading={isSubmitting}>
-              Create Course
-            </Button>
+            <BrutalistButton type="submit" isDark={isDark} isLoading={isSubmitting}>
+              CREATE COURSE
+            </BrutalistButton>
           </Modal.Footer>
         </form>
       </Modal.Content>

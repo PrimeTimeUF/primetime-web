@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { Button, Input, Modal } from "@/components";
+import { Modal } from "@/components";
+import { BrutalistButton, BrutalistInput, themeTokens } from "@/components/ui/dashboard-primitives";
 
 interface EnrollCourseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEnrolled: () => void;
+  isDark?: boolean;
 }
 
 export default function EnrollCourseModal({
   open,
   onOpenChange,
   onEnrolled,
+  isDark = true,
 }: Readonly<EnrollCourseModalProps>) {
+  const t = themeTokens(isDark);
   const [invitationCode, setInvitationCode] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,16 +73,18 @@ export default function EnrollCourseModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <Modal.Content size="sm">
+      <Modal.Content size="sm" isDark={isDark}>
         <Modal.Title>Enroll in Course</Modal.Title>
         <Modal.Description>
           Enter the invitation code from your teacher to join a course.
         </Modal.Description>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Input
+          <BrutalistInput
+            isDark={isDark}
+            id="invitation-code"
             label="Invitation Code"
-            placeholder="Enter code"
+            placeholder="ENTER CODE"
             value={invitationCode}
             onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
             maxLength={8}
@@ -86,23 +92,23 @@ export default function EnrollCourseModal({
             className="text-center text-lg tracking-widest uppercase"
             required
           />
-          <p className="text-xs text-gray-500 text-center">
+          <p className={`font-mono text-[10px] ${t.textDim} tracking-wider text-center`}>
             Ask your teacher for the course invitation code
           </p>
 
           {error && (
-            <p className="text-sm text-red-500">{error}</p>
+            <p className={`font-mono text-xs ${isDark ? "text-red-400" : "text-red-600"}`}>{error}</p>
           )}
 
           <Modal.Footer>
             <Modal.Close>
-              <Button type="button" variant="secondary">
+              <BrutalistButton type="button" isDark={isDark} variant="secondary" disabled={isSubmitting}>
                 Cancel
-              </Button>
+              </BrutalistButton>
             </Modal.Close>
-            <Button type="submit" isLoading={isSubmitting}>
-              Join Course
-            </Button>
+            <BrutalistButton type="submit" isDark={isDark} isLoading={isSubmitting}>
+              JOIN COURSE
+            </BrutalistButton>
           </Modal.Footer>
         </form>
       </Modal.Content>

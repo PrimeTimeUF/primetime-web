@@ -87,7 +87,7 @@ describe("AssignSessionModal", () => {
   it("shows validation error when submitting without session", async () => {
     render(<AssignSessionModal {...defaultProps} />);
     // The button should be disabled since no session/date selected
-    expect(screen.getByText("Assign Session")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "ASSIGN SESSION" })).toBeDisabled();
   });
 
   it("submits with correct payload", async () => {
@@ -108,7 +108,7 @@ describe("AssignSessionModal", () => {
     } as Response);
 
     // Submit
-    await userEvent.click(screen.getByText("Assign Session"));
+    await userEvent.click(screen.getByText("ASSIGN SESSION"));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -133,9 +133,9 @@ describe("AssignSessionModal", () => {
     await userEvent.type(dateInput, "2026-12-25");
 
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
-    await userEvent.click(screen.getByText("Assign Session"));
+    await userEvent.click(screen.getByText("ASSIGN SESSION"));
 
-    expect(screen.getByText("Assigning...")).toBeInTheDocument();
+    expect(screen.getByText("ASSIGNING...")).toBeInTheDocument();
   });
 
   it("displays API error message", async () => {
@@ -152,7 +152,7 @@ describe("AssignSessionModal", () => {
       json: async () => ({ error: "Already assigned" }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Assign Session"));
+    await userEvent.click(screen.getByText("ASSIGN SESSION"));
 
     await waitFor(() => {
       expect(screen.getByText("Already assigned")).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe("AssignSessionModal", () => {
         sessions={[makeSession({ id: "s1", status: "generating" })]}
       />
     );
-    expect(screen.getByText("Assign Session")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "ASSIGN SESSION" })).toBeDisabled();
   });
 
   it("renders due date input with min date set to tomorrow", () => {

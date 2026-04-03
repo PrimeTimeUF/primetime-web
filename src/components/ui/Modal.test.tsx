@@ -102,7 +102,7 @@ describe("Modal", () => {
       </Modal>
     );
     const title = screen.getByText("My Modal");
-    expect(title.className).toMatch(/font-semibold/);
+    expect(title.className).toMatch(/font-mono/);
   });
 
   it("renders Modal.Close wrapping a button that triggers onOpenChange", async () => {

@@ -33,7 +33,7 @@ describe("EnrollCourseModal", () => {
   it("renders Cancel and Join Course buttons", () => {
     render(<EnrollCourseModal {...defaultProps} />);
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Join Course" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "JOIN COURSE" })).toBeInTheDocument();
   });
 
   it("shows error when invitation code is empty", async () => {
@@ -49,7 +49,7 @@ describe("EnrollCourseModal", () => {
   it("shows error when invitation code is too short (< 6 chars)", async () => {
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABC");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
     await waitFor(() => {
       expect(screen.getByText("Invitation code must be at least 6 characters.")).toBeInTheDocument();
     });
@@ -69,7 +69,7 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABCDEF");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith("/api/enrollments", expect.objectContaining({
@@ -87,7 +87,7 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABCDEF");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
     await waitFor(() => {
       expect(defaultProps.onEnrolled).toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "BADCOD");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
     await waitFor(() => {
       expect(screen.getByText("Invalid invitation code. Please check with your teacher.")).toBeInTheDocument();
@@ -118,7 +118,7 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABCDEF");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
     await waitFor(() => {
       expect(screen.getByText("You are already enrolled in this course.")).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABCDEF");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
     await waitFor(() => {
       expect(screen.getByText("Something went wrong. Please try again.")).toBeInTheDocument();
@@ -142,9 +142,9 @@ describe("EnrollCourseModal", () => {
 
     render(<EnrollCourseModal {...defaultProps} />);
     await userEvent.type(screen.getByLabelText("Invitation Code"), "ABCDEF");
-    await userEvent.click(screen.getByRole("button", { name: "Join Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "JOIN COURSE" }));
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING...")).toBeInTheDocument();
   });
 
   it("resets form when modal is closed and reopened", async () => {

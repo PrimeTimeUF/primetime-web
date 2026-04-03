@@ -38,7 +38,7 @@ describe("CreateCourseModal", () => {
   it("renders Cancel and Create Course buttons", () => {
     render(<CreateCourseModal {...defaultProps} />);
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create Course" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "CREATE COURSE" })).toBeInTheDocument();
   });
 
   it("shows validation error when required fields are missing", async () => {
@@ -72,7 +72,7 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Course Title"), "Introduction to Psychology");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith("/api/courses", expect.objectContaining({
@@ -97,7 +97,7 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Course Title"), "Psych 101");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
     await waitFor(() => {
       expect(defaultProps.onCourseCreated).toHaveBeenCalled();
@@ -115,7 +115,7 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Course Title"), "Psych 101");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
     await waitFor(() => {
       expect(screen.getByText("Course code already exists")).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Course Title"), "Psych 101");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
     await waitFor(() => {
       expect(screen.getByText("Something went wrong. Please try again.")).toBeInTheDocument();
@@ -143,9 +143,9 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Course Title"), "Psych 101");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("LOADING...")).toBeInTheDocument();
   });
 
   it("includes description in fetch body when provided", async () => {
@@ -159,7 +159,7 @@ describe("CreateCourseModal", () => {
     await userEvent.type(screen.getByLabelText("Description"), "A course about psychology");
     await userEvent.type(screen.getByLabelText("Course Code"), "PSY 101");
     await userEvent.type(screen.getByLabelText("Semester"), "Fall 2026");
-    await userEvent.click(screen.getByRole("button", { name: "Create Course" }));
+    await userEvent.click(screen.getByRole("button", { name: "CREATE COURSE" }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith("/api/courses", expect.objectContaining({

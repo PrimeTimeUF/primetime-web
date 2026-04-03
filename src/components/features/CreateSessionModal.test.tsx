@@ -95,7 +95,7 @@ describe("CreateSessionModal", () => {
       expect(screen.getByText("15 min")).toBeInTheDocument();
     });
     const btn15 = screen.getByText("15 min").closest("button")!;
-    expect(btn15.className).toContain("border-black");
+    expect(btn15.className).toContain("border-white");
   });
 
   it("submits with correct payload on success", async () => {
@@ -120,7 +120,7 @@ describe("CreateSessionModal", () => {
     } as Response);
 
     // Click Create Session
-    await userEvent.click(screen.getByText("Create Session"));
+    await userEvent.click(screen.getByText("CREATE SESSION"));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -147,9 +147,9 @@ describe("CreateSessionModal", () => {
     await userEvent.selectOptions(select, "L1");
 
     vi.mocked(global.fetch).mockImplementation(() => new Promise(() => {}));
-    await userEvent.click(screen.getByText("Create Session"));
+    await userEvent.click(screen.getByText("CREATE SESSION"));
 
-    expect(screen.getByText("Creating...")).toBeInTheDocument();
+    expect(screen.getByText("CREATING...")).toBeInTheDocument();
   });
 
   it("displays API error message", async () => {
@@ -168,7 +168,7 @@ describe("CreateSessionModal", () => {
       json: async () => ({ error: "Material not found" }),
     } as Response);
 
-    await userEvent.click(screen.getByText("Create Session"));
+    await userEvent.click(screen.getByText("CREATE SESSION"));
 
     await waitFor(() => {
       expect(screen.getByText("Material not found")).toBeInTheDocument();
@@ -187,7 +187,7 @@ describe("CreateSessionModal", () => {
     await userEvent.selectOptions(select, "L1");
 
     vi.mocked(global.fetch).mockRejectedValueOnce(new Error("Network error"));
-    await userEvent.click(screen.getByText("Create Session"));
+    await userEvent.click(screen.getByText("CREATE SESSION"));
 
     await waitFor(() => {
       expect(screen.getByText("Network error")).toBeInTheDocument();
@@ -202,6 +202,6 @@ describe("CreateSessionModal", () => {
       expect(screen.getByText(/No lecture groups found/)).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Create Session")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "CREATE SESSION" })).toBeDisabled();
   });
 });

@@ -258,6 +258,7 @@ export default function StudentDashboardPage() {
         open={enrollModalOpen}
         onOpenChange={setEnrollModalOpen}
         onEnrolled={fetchEnrollments}
+        isDark={isDark}
       />
     </>
   );

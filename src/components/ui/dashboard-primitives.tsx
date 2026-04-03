@@ -189,7 +189,7 @@ interface BrutalistInputProps extends React.InputHTMLAttributes<HTMLInputElement
 }
 
 export const BrutalistInput = forwardRef<HTMLInputElement, BrutalistInputProps>(
-  function BrutalistInput({ isDark, label, error, className = "", ...rest }, ref) {
+  function BrutalistInput({ isDark, label, error, id, className = "", ...rest }, ref) {
     const t = themeTokens(isDark);
     const errorBorder = isDark ? 'border-red-500/40' : 'border-red-500/60';
     const errorText = isDark ? 'text-red-400' : 'text-red-600';
@@ -197,11 +197,12 @@ export const BrutalistInput = forwardRef<HTMLInputElement, BrutalistInputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
+          <label htmlFor={id} className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>
             {label}
           </label>
         )}
         <input
+          id={id}
           ref={ref}
           className={`w-full border ${error ? errorBorder : t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 placeholder:${isDark ? 'text-white/20' : 'text-black/25'} focus:outline-none focus:border-current transition-colors duration-200 ${className}`}
           {...rest}

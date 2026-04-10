@@ -132,12 +132,12 @@ export default function StudentDashboardPage() {
       <SectionLabel num="001" label="DASHBOARD" isDark={isDark} />
 
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className={`font-mono text-2xl font-bold tracking-wider ${t.text}`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <h1 className={`font-mono text-xl sm:text-2xl font-bold tracking-wider ${t.text} break-words`}>
             Welcome back, {getFirstName(userData.full_name)}
           </h1>
-          <p className={`mt-1 font-mono text-sm ${t.textMid}`}>
+          <p className={`mt-1 font-mono text-xs sm:text-sm ${t.textMid}`}>
             {hasEnrollments
               ? `You have ${enrollments.length} course${enrollments.length === 1 ? "" : "s"}`
               : "Get started by enrolling in your first course"}
@@ -146,6 +146,7 @@ export default function StudentDashboardPage() {
         <BrutalistButton
           isDark={isDark}
           onClick={() => setEnrollModalOpen(true)}
+          className="w-full sm:w-auto"
           iconBefore={
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <line x1="8" y1="3" x2="8" y2="13" />
@@ -159,7 +160,7 @@ export default function StudentDashboardPage() {
 
       {/* Performance Section */}
       {hasEnrollments && (
-        <section className="mb-8">
+        <section className="mb-6 sm:mb-8">
           <SectionLabel num="002" label="PERFORMANCE" isDark={isDark} />
           {analyticsLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -181,7 +182,7 @@ export default function StudentDashboardPage() {
 
       {/* Empty State */}
       {!hasEnrollments && (
-        <BrutalistCard isDark={isDark} className="flex flex-col items-center justify-center py-16 px-6">
+        <BrutalistCard isDark={isDark} className="flex flex-col items-center justify-center py-12 px-4 sm:py-16 sm:px-6">
           <svg
             className={`w-16 h-16 ${t.textDim} mb-6`}
             viewBox="0 0 24 24"

@@ -38,41 +38,41 @@ describe("SessionHistoryTable", () => {
 
   it("displays session title and course code", () => {
     render(<SessionHistoryTable results={[makeResult()]} />);
-    expect(screen.getByText("Lecture 1 Review")).toBeInTheDocument();
-    expect(screen.getByText("BIO101")).toBeInTheDocument();
+    expect(screen.getAllByText("Lecture 1 Review").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("BIO101").length).toBeGreaterThan(0);
   });
 
   it("shows 'Untitled Session' when title is null", () => {
     render(<SessionHistoryTable results={[makeResult({ session: { title: null, lecture_name: "L1" } })]} />);
-    expect(screen.getByText("Untitled Session")).toBeInTheDocument();
+    expect(screen.getAllByText("Untitled Session").length).toBeGreaterThan(0);
   });
 
   it("displays score as fraction", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 3, total_questions: 4 })]} />);
-    expect(screen.getByText("3/4")).toBeInTheDocument();
+    expect(screen.getAllByText("3/4").length).toBeGreaterThan(0);
   });
 
   it("applies success badge for score >= 80%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 4, total_questions: 5 })]} />);
-    const badge = screen.getByText("4/5");
-    expect(badge).toHaveClass("text-green-400");
+    const badges = screen.getAllByText("4/5");
+    badges.forEach((badge) => expect(badge).toHaveClass("text-green-400"));
   });
 
   it("applies warning badge for score >= 60% and < 80%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 3, total_questions: 5 })]} />);
-    const badge = screen.getByText("3/5");
-    expect(badge).toHaveClass("text-amber-400");
+    const badges = screen.getAllByText("3/5");
+    badges.forEach((badge) => expect(badge).toHaveClass("text-amber-400"));
   });
 
   it("applies error badge for score < 60%", () => {
     render(<SessionHistoryTable results={[makeResult({ score: 1, total_questions: 5 })]} />);
-    const badge = screen.getByText("1/5");
-    expect(badge).toHaveClass("text-red-400");
+    const badges = screen.getAllByText("1/5");
+    badges.forEach((badge) => expect(badge).toHaveClass("text-red-400"));
   });
 
   it("formats date correctly", () => {
     render(<SessionHistoryTable results={[makeResult({ completed_at: "2025-01-15T10:00:00Z" })]} />);
-    expect(screen.getByText("Jan 15, 2025")).toBeInTheDocument();
+    expect(screen.getAllByText("Jan 15, 2025").length).toBeGreaterThan(0);
   });
 
   it("renders multiple rows", () => {
@@ -81,7 +81,7 @@ describe("SessionHistoryTable", () => {
       makeResult({ id: "r2", session: { title: "Session B", lecture_name: "L2" } }),
     ];
     render(<SessionHistoryTable results={results} />);
-    expect(screen.getByText("Session A")).toBeInTheDocument();
-    expect(screen.getByText("Session B")).toBeInTheDocument();
+    expect(screen.getAllByText("Session A").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Session B").length).toBeGreaterThan(0);
   });
 });

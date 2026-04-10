@@ -108,7 +108,7 @@ export default function CreateCourseModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <BrutalistInput
               isDark={isDark}
               id="course-code"
@@ -135,11 +135,11 @@ export default function CreateCourseModal({
 
           <Modal.Footer>
             <Modal.Close>
-              <BrutalistButton type="button" isDark={isDark} variant="secondary" disabled={isSubmitting}>
+              <BrutalistButton type="button" isDark={isDark} variant="secondary" disabled={isSubmitting} className="w-full sm:w-auto">
                 Cancel
               </BrutalistButton>
             </Modal.Close>
-            <BrutalistButton type="submit" isDark={isDark} isLoading={isSubmitting}>
+            <BrutalistButton type="submit" isDark={isDark} isLoading={isSubmitting} className="w-full sm:w-auto">
               CREATE COURSE
             </BrutalistButton>
           </Modal.Footer>

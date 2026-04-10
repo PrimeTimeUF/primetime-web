@@ -40,8 +40,8 @@ export default function TeacherAnalyticsPage() {
     <div>
       <SectionLabel num="001" label="ANALYTICS" isDark={isDark} />
 
-      <div className="mb-8">
-        <h1 className={`font-mono text-2xl font-bold tracking-wider ${t.text} transition-colors duration-500`}>
+      <div className="mb-6 sm:mb-8">
+        <h1 className={`font-mono text-xl sm:text-2xl font-bold tracking-wider ${t.text} transition-colors duration-500`}>
           ANALYTICS OVERVIEW
         </h1>
         <p className={`mt-1 font-mono text-xs ${t.textMid} tracking-wider transition-colors duration-500`}>
@@ -77,7 +77,7 @@ export default function TeacherAnalyticsPage() {
 
       {!isLoading && overview && overview.courses.length > 0 && (
         <>
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <TeacherStatsBar
               isDark={isDark}
               totalStudents={overview.total_students}

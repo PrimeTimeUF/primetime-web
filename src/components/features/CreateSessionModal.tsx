@@ -194,7 +194,7 @@ export default function CreateSessionModal({
 
         <Modal.Footer>
           <Modal.Close>
-            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading}>
+            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading} className="w-full sm:w-auto">
               Cancel
             </BrutalistButton>
           </Modal.Close>
@@ -202,6 +202,7 @@ export default function CreateSessionModal({
             isDark={isDark}
             onClick={handleSubmit}
             disabled={isLoading || !selectedLecture || lectureNames.length === 0}
+            className="w-full sm:w-auto"
           >
             {isLoading ? "CREATING..." : "CREATE SESSION"}
           </BrutalistButton>

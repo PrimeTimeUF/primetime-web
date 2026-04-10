@@ -1,0 +1,112 @@
+- generic:
+  - button "Open Next.js Dev Tools" [ref=e166] [cursor=pointer]:
+    - generic [ref=e169]:
+      - text: Compiling
+      - generic [ref=e170]:
+        - generic [ref=e171]: .
+        - generic [ref=e172]: .
+        - generic [ref=e173]: .
+  - alert
+  - generic:
+    - banner:
+      - generic:
+        - generic:
+          - link:
+            - /url: /teacher
+            - text: PRIMETIME
+        - generic:
+          - button:
+            - img
+          - generic:
+            - button:
+              - generic: AY
+              - img
+      - generic:
+        - generic:
+          - navigation:
+            - link:
+              - /url: /teacher
+              - text: COURSES
+            - link:
+              - /url: /teacher/analytics
+              - text: ANALYTICS
+    - main:
+      - generic:
+        - generic:
+          - generic: "001"
+          - generic: COURSES
+        - generic:
+          - generic:
+            - heading [level=1]: YOUR COURSES
+            - paragraph: Manage and organize your course materials
+          - button:
+            - generic:
+              - img
+              - text: CREATE COURSE
+        - generic:
+          - link:
+            - /url: /teacher/courses/b2699e79-5884-4a65-8e73-4e701698f08e
+            - generic:
+              - generic:
+                - heading [level=3]: INTRO TO MACHINE LEARNING
+                - paragraph: testing course creation
+                - generic:
+                  - generic:
+                    - generic: COURSE CODE
+                    - generic: CIS4930
+                  - generic:
+                    - generic: SEMESTER
+                    - generic: Spring 2026
+                  - generic:
+                    - generic: INVITE CODE
+                    - generic: V2E42MTP
+          - link:
+            - /url: /teacher/courses/ebb49f6a-7988-409d-8026-f3e989d3ba8a
+            - generic:
+              - generic:
+                - heading [level=3]: INTRO TO VR
+                - paragraph: testing course creation
+                - generic:
+                  - generic:
+                    - generic: COURSE CODE
+                    - generic: CIS4930
+                  - generic:
+                    - generic: SEMESTER
+                    - generic: Spring 2026
+                  - generic:
+                    - generic: INVITE CODE
+                    - generic: QB94QF2L
+    - generic:
+      - generic:
+        - generic:
+          - generic: SYS.ACT
+          - generic: V1.0.0
+  - dialog "Create Course" [ref=e215]:
+    - generic [ref=e220]:
+      - heading "Create Course" [level=2] [ref=e221]
+      - paragraph [ref=e222]: Fill in the details below to create a new course.
+      - generic [ref=e223]:
+        - generic [ref=e224]:
+          - generic [ref=e225]: Course Title
+          - textbox "Course Title" [active] [ref=e226]:
+            - /placeholder: e.g. Introduction to Psychology
+        - generic [ref=e227]:
+          - generic [ref=e228]: Description
+          - textbox "Description" [ref=e229]:
+            - /placeholder: Brief course description (optional)
+        - generic [ref=e230]:
+          - generic [ref=e231]:
+            - generic [ref=e232]: Course Code
+            - textbox "Course Code" [ref=e233]:
+              - /placeholder: e.g. PSY 101
+          - generic [ref=e234]:
+            - generic [ref=e235]: Semester
+            - textbox "Semester" [ref=e236]:
+              - /placeholder: e.g. Fall 2026
+        - generic [ref=e237]:
+          - button "Cancel" [ref=e238]:
+            - generic [ref=e239]: Cancel
+          - button "CREATE COURSE" [ref=e240]:
+            - generic [ref=e243]: CREATE COURSE
+    - button "Close" [ref=e244]:
+      - img [ref=e245]

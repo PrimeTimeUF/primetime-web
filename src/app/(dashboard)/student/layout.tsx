@@ -21,7 +21,7 @@ export default function StudentLayout({ children }: Readonly<StudentLayoutProps>
       <div className={`relative min-h-screen transition-colors duration-500 ${t.bg}`}>
         <GridBackground isDark={isDark} />
         <StudentDashboardHeader isDark={isDark} onToggle={() => setIsDark((v) => !v)} />
-        <main className="relative z-10 mx-auto max-w-[1200px] px-6 py-8 pb-16 pt-24">
+        <main className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6 py-8 pt-32 sm:pt-24 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-16">
           {children}
         </main>
         <DashboardFooter isDark={isDark} />
@@ -44,9 +44,9 @@ function StudentDashboardHeader({ isDark, onToggle }: Readonly<DashboardHeaderPr
 
   return (
     <header className={`sticky top-0 z-50 border-b ${t.border} ${isDark ? 'bg-black/80' : 'bg-white/80'} backdrop-blur-sm transition-colors duration-500`}>
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6">
         {/* Left: Logo + Nav */}
-        <div className="flex items-center gap-6 lg:gap-8">
+        <div className="flex items-center gap-3 sm:gap-6 lg:gap-8">
           <Link
             href="/student"
             className={`font-mono ${t.text} text-xl lg:text-2xl font-bold tracking-widest italic transform -skew-x-12 transition-colors duration-500`}
@@ -54,19 +54,28 @@ function StudentDashboardHeader({ isDark, onToggle }: Readonly<DashboardHeaderPr
             PRIMETIME
           </Link>
           <div className={`h-4 w-px ${t.divider} hidden lg:block`} />
-          <StudentSidebarNav isDark={isDark} />
+          <div className="hidden sm:block">
+            <StudentSidebarNav isDark={isDark} />
+          </div>
         </div>
 
         {/* Right: Theme toggle + User Menu */}
-        <div className="flex items-center gap-3 lg:gap-5">
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-5">
           <button
             onClick={onToggle}
-            className={`flex items-center justify-center w-8 h-8 border ${t.borderDim} ${t.text} transition-all duration-200 font-mono`}
+            className={`flex items-center justify-center w-9 h-9 sm:w-8 sm:h-8 border ${t.borderDim} ${t.text} transition-all duration-200 font-mono`}
             aria-label="Toggle light/dark mode"
           >
             {isDark ? <SunIcon /> : <MoonIcon />}
           </button>
           <StudentUserMenu isDark={isDark} />
+        </div>
+      </div>
+
+      {/* Mobile nav strip (below header row, <sm only) */}
+      <div className={`sm:hidden border-t ${t.border}`}>
+        <div className="mx-auto max-w-[1200px] flex justify-center px-4">
+          <StudentSidebarNav isDark={isDark} />
         </div>
       </div>
     </header>

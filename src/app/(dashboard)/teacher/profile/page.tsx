@@ -135,9 +135,9 @@ export default function TeacherProfilePage() {
   }
 
   return (
-    <div className="max-w-[800px]">
+    <div className="max-w-[800px] px-4 sm:px-6">
       {/* Back link */}
-      <Link href="/teacher" className={`inline-flex items-center gap-2 font-mono text-xs ${t.textMid} ${isDark ? 'hover:text-white' : 'hover:text-black'} transition-colors tracking-wider mb-6`}>
+      <Link href="/teacher" className={`inline-flex items-center gap-2 font-mono text-xs ${t.textMid} ${isDark ? 'hover:text-white' : 'hover:text-black'} transition-colors tracking-wider mb-4 sm:mb-6`}>
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
@@ -145,7 +145,7 @@ export default function TeacherProfilePage() {
       </Link>
 
       <SectionLabel num="002" label="PROFILE & SETTINGS" isDark={isDark} />
-      <h1 className={`font-mono text-2xl font-bold tracking-wider ${t.text} mb-8`}>PROFILE</h1>
+      <h1 className={`font-mono text-xl sm:text-2xl font-bold tracking-wider ${t.text} mb-6 sm:mb-8`}>PROFILE</h1>
 
       {/* Profile Section */}
       <BrutalistCard isDark={isDark} className="mb-6">
@@ -154,8 +154,8 @@ export default function TeacherProfilePage() {
         {/* Profile Picture */}
         <div className="mb-6">
           <span className={`block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-3`}>PROFILE PICTURE</span>
-          <div className="flex items-center gap-4">
-            <div className={`w-20 h-20 border ${t.borderMid} ${t.text} flex items-center justify-center text-2xl font-mono font-bold overflow-hidden`}>
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4">
+            <div className={`w-20 h-20 sm:w-20 sm:h-20 border ${t.borderMid} ${t.text} flex items-center justify-center text-2xl font-mono font-bold overflow-hidden`}>
               {profileImagePreview ? (
                 <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -195,7 +195,7 @@ export default function TeacherProfilePage() {
         {success && <div className={`mb-4 p-3 border ${isDark ? 'border-green-500/40 bg-green-500/10' : 'border-green-500/60 bg-green-50'} font-mono text-xs ${isDark ? 'text-green-400' : 'text-green-600'}`}>{success}</div>}
 
         <div className="flex justify-end">
-          <BrutalistButton isDark={isDark} onClick={handleSaveProfile} isLoading={isSaving} disabled={isSaving}>SAVE CHANGES</BrutalistButton>
+          <BrutalistButton isDark={isDark} onClick={handleSaveProfile} isLoading={isSaving} disabled={isSaving} className="w-full sm:w-auto">SAVE CHANGES</BrutalistButton>
         </div>
       </BrutalistCard>
 
@@ -213,7 +213,7 @@ export default function TeacherProfilePage() {
         {passwordSuccess && <div className={`mb-4 p-3 border ${isDark ? 'border-green-500/40 bg-green-500/10' : 'border-green-500/60 bg-green-50'} font-mono text-xs ${isDark ? 'text-green-400' : 'text-green-600'}`}>{passwordSuccess}</div>}
 
         <div className="flex justify-end">
-          <BrutalistButton isDark={isDark} onClick={handleChangePassword} isLoading={isChangingPassword} disabled={isChangingPassword}>CHANGE PASSWORD</BrutalistButton>
+          <BrutalistButton isDark={isDark} onClick={handleChangePassword} isLoading={isChangingPassword} disabled={isChangingPassword} className="w-full sm:w-auto">CHANGE PASSWORD</BrutalistButton>
         </div>
       </BrutalistCard>
 
@@ -221,11 +221,11 @@ export default function TeacherProfilePage() {
       <BrutalistCard isDark={isDark}>
         <h2 className={`font-mono text-sm font-bold ${t.text} tracking-[0.2em] mb-6`}>ACCOUNT INFORMATION</h2>
         <div className="space-y-0">
-          <div className={`flex justify-between py-3 border-b ${t.divider}`}>
+          <div className={`flex flex-col sm:flex-row sm:justify-between py-3 border-b gap-2 sm:gap-0 ${t.divider}`}>
             <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>ACCOUNT TYPE</span>
             <span className={`font-mono text-xs font-medium ${t.text} tracking-wider uppercase`}>{profile.role}</span>
           </div>
-          <div className="flex justify-between py-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between py-3 gap-2 sm:gap-0">
             <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>MEMBER SINCE</span>
             <span className={`font-mono text-xs font-medium ${t.text} tracking-wider`}>{formatDate(profile.created_at)}</span>
           </div>

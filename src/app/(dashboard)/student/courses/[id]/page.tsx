@@ -134,16 +134,16 @@ export default function StudentCourseDetailPage() {
       <SectionLabel num="002" label="COURSE DETAIL" isDark={isDark} />
 
       {/* Course Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-2">
-          <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center border ${t.border} font-mono text-xs font-bold ${t.text}`}>
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center gap-3 sm:gap-4 mb-2">
+          <div className={`flex h-11 w-11 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center border ${t.border} font-mono text-[10px] sm:text-xs font-bold ${t.text}`}>
             {course.course_code.substring(0, 3)}
           </div>
-          <div>
-            <h1 className={`font-mono text-2xl font-bold tracking-wider ${t.text}`}>
+          <div className="min-w-0 flex-1">
+            <h1 className={`font-mono text-xl sm:text-2xl font-bold tracking-wider ${t.text} break-words`}>
               {course.title}
             </h1>
-            <div className={`mt-1 flex items-center gap-4 font-mono text-xs ${t.textMid} tracking-wider`}>
+            <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-4 font-mono text-xs ${t.textMid} tracking-wider`}>
               <span>{course.course_code}</span>
               <span className={`w-1 h-1 ${isDark ? 'bg-white/30' : 'bg-black/30'} rounded-full`} />
               <span>{course.semester}</span>
@@ -185,7 +185,7 @@ export default function StudentCourseDetailPage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className={`flex gap-0 border-b ${t.border} mb-6`}>
+            <div className={`flex gap-0 border-b ${t.border} mb-6 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0`}>
               {(["all", "upcoming", "completed"] as FilterKey[]).map((key) => (
                 <BrutalistTab
                   key={key}
@@ -240,62 +240,68 @@ export default function StudentCourseDetailPage() {
                   return (
                     <div
                       key={assignment.id}
-                      className={`flex items-center gap-4 border ${t.border} ${t.cardBg} p-5 transition-all duration-200 ${
+                      className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 border ${t.border} ${t.cardBg} p-4 sm:p-5 transition-all duration-200 ${
                         isCompleted
                           ? 'opacity-60 hover:opacity-100'
-                          : `hover:-translate-y-0.5 ${isDark ? 'hover:border-white/30' : 'hover:border-black/25'}`
+                          : `sm:hover:-translate-y-0.5 ${isDark ? 'hover:border-white/30' : 'hover:border-black/25'}`
                       }`}
                     >
-                      {/* Session icon */}
-                      <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center border font-mono text-xs ${
-                        isCompleted
-                          ? isDark ? 'border-green-500/40 text-green-400' : 'border-green-600/50 text-green-600'
-                          : `${t.border} ${t.text}`
-                      }`}>
-                        {isCompleted ? (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        ) : (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                          </svg>
-                        )}
-                      </div>
-
-                      {/* Session details */}
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-mono text-sm font-bold ${t.text} tracking-wider truncate`}>
-                          {assignment.session.title || "Untitled Session"}
-                        </p>
-                        <div className={`mt-1 flex flex-wrap items-center gap-4 font-mono text-xs ${t.textDim}`}>
-                          <span className="flex items-center gap-1.5">
-                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                              <circle cx="6" cy="6" r="4" />
-                              <path d="M6 3v3l2 1" />
+                      {/* Icon + details (row on mobile, left side on desktop) */}
+                      <div className="flex items-start gap-3 sm:items-center sm:gap-4 sm:flex-1 min-w-0">
+                        {/* Session icon */}
+                        <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center border font-mono text-xs ${
+                          isCompleted
+                            ? isDark ? 'border-green-500/40 text-green-400' : 'border-green-600/50 text-green-600'
+                            : `${t.border} ${t.text}`
+                        }`}>
+                          {isCompleted ? (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
                             </svg>
-                            {formatDueDate(assignment.due_date)}
-                          </span>
-                          {assignment.session.lecture_name && (
+                          ) : (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                            </svg>
+                          )}
+                        </div>
+
+                        {/* Session details */}
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-mono text-sm font-bold ${t.text} tracking-wider break-words`}>
+                            {assignment.session.title || "Untitled Session"}
+                          </p>
+                          <div className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-4 font-mono text-xs ${t.textDim}`}>
                             <span className="flex items-center gap-1.5">
                               <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                <rect x="2" y="2" width="8" height="8" rx="1" />
-                                <path d="M2 5h8" />
+                                <circle cx="6" cy="6" r="4" />
+                                <path d="M6 3v3l2 1" />
                               </svg>
-                              {assignment.session.lecture_name}
+                              {formatDueDate(assignment.due_date)}
                             </span>
-                          )}
+                            {assignment.session.lecture_name && (
+                              <span className="flex items-center gap-1.5 min-w-0">
+                                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0">
+                                  <rect x="2" y="2" width="8" height="8" rx="1" />
+                                  <path d="M2 5h8" />
+                                </svg>
+                                <span className="truncate">{assignment.session.lecture_name}</span>
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Status + Action */}
-                      <div className="flex items-center gap-3 flex-shrink-0">
+                      {/* Status + Action (bottom row on mobile, right side on desktop) */}
+                      <div className="flex items-center gap-3 sm:flex-shrink-0">
                         {isCompleted ? (
                           <>
                             <BrutalistBadge isDark={isDark} variant="success">COMPLETED</BrutalistBadge>
-                            <Link href={`/student/courses/${id}/sessions/${assignment.session_id}?review=true`}>
-                              <BrutalistButton isDark={isDark} variant="secondary" size="sm">
+                            <Link
+                              href={`/student/courses/${id}/sessions/${assignment.session_id}?review=true`}
+                              className="flex-1 sm:flex-none"
+                            >
+                              <BrutalistButton isDark={isDark} variant="secondary" size="sm" className="w-full sm:w-auto">
                                 REVIEW
                               </BrutalistButton>
                             </Link>
@@ -305,8 +311,11 @@ export default function StudentCourseDetailPage() {
                             <BrutalistBadge isDark={isDark} variant={overdue ? "error" : "warning"}>
                               {overdue ? "OVERDUE" : "UPCOMING"}
                             </BrutalistBadge>
-                            <Link href={`/student/courses/${id}/sessions/${assignment.session_id}`}>
-                              <BrutalistButton isDark={isDark} size="sm">
+                            <Link
+                              href={`/student/courses/${id}/sessions/${assignment.session_id}`}
+                              className="flex-1 sm:flex-none"
+                            >
+                              <BrutalistButton isDark={isDark} size="sm" className="w-full sm:w-auto">
                                 START
                               </BrutalistButton>
                             </Link>

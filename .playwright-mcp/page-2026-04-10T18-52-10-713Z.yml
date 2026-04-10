@@ -1,0 +1,84 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PRIMETIME" [ref=e6] [cursor=pointer]:
+          - /url: /teacher
+        - generic [ref=e7]:
+          - button "Toggle light/dark mode" [ref=e8]:
+            - img [ref=e9]
+          - button "AY" [ref=e46]:
+            - generic [ref=e17]: AY
+            - img [ref=e18]
+      - navigation [ref=e22]:
+        - link "COURSES" [ref=e23] [cursor=pointer]:
+          - /url: /teacher
+        - link "ANALYTICS" [ref=e24] [cursor=pointer]:
+          - /url: /teacher/analytics
+    - main [ref=e25]:
+      - generic [ref=e47]:
+        - link "BACK TO DASHBOARD" [ref=e48] [cursor=pointer]:
+          - /url: /teacher
+          - img [ref=e49]
+          - text: BACK TO DASHBOARD
+        - generic [ref=e51]:
+          - generic [ref=e53]: "002"
+          - generic [ref=e55]: COURSE DETAIL
+        - generic [ref=e58]:
+          - generic [ref=e59]: 📚
+          - generic [ref=e60]:
+            - heading "INTRO TO MACHINE LEARNING" [level=1] [ref=e61]
+            - generic [ref=e62]:
+              - generic [ref=e63]: CIS4930
+              - generic [ref=e64]: //
+              - generic [ref=e65]: Spring 2026
+              - generic [ref=e66]: //
+              - generic [ref=e67]: 2 STUDENTS
+        - generic [ref=e68]:
+          - button "MATERIALS 0" [ref=e69]:
+            - generic [ref=e70]:
+              - text: MATERIALS
+              - generic [ref=e71]: "0"
+          - button "STUDENTS 2" [ref=e73]:
+            - generic [ref=e74]:
+              - text: STUDENTS
+              - generic [ref=e75]: "2"
+          - button "SESSIONS 1" [active] [ref=e76]:
+            - generic [ref=e77]:
+              - text: SESSIONS
+              - generic [ref=e78]: "1"
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - button "ASSIGN SESSION" [ref=e203]:
+              - generic [ref=e204]:
+                - img [ref=e205]
+                - text: ASSIGN SESSION
+            - button "CREATE SESSION" [ref=e207]:
+              - generic [ref=e210]:
+                - img [ref=e211]
+                - text: CREATE SESSION
+          - link "INTRODUCTION TO SUPERVISED LEARNING AND LINEAR REGRESSION Linear Regression // Feb 27, 2026, 10:31 AM 15 MIN READY DUE MAR 6, 2026" [ref=e213] [cursor=pointer]:
+            - /url: /teacher/courses/b2699e79-5884-4a65-8e73-4e701698f08e/sessions/82876315-cd1e-4d07-ad5f-f3e07ad2307c
+            - generic [ref=e219]:
+              - img [ref=e221]
+              - generic [ref=e224]:
+                - paragraph [ref=e225]: INTRODUCTION TO SUPERVISED LEARNING AND LINEAR REGRESSION
+                - generic [ref=e226]:
+                  - paragraph [ref=e227]: Linear Regression // Feb 27, 2026, 10:31 AM
+                  - generic [ref=e228]: 15 MIN
+                  - generic [ref=e229]: READY
+                  - generic [ref=e230]:
+                    - img [ref=e231]
+                    - text: DUE MAR 6, 2026
+              - img [ref=e233]
+    - generic [ref=e29]:
+      - generic [ref=e30]: SYS.ACT
+      - generic [ref=e31]: V1.0.0
+  - button "Open Next.js Dev Tools" [ref=e192] [cursor=pointer]:
+    - generic [ref=e195]:
+      - text: Compiling
+      - generic [ref=e196]:
+        - generic [ref=e197]: .
+        - generic [ref=e198]: .
+        - generic [ref=e199]: .
+  - alert [ref=e118]

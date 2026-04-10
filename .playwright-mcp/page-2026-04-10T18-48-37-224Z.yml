@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PRIMETIME" [ref=e6] [cursor=pointer]:
+          - /url: /teacher
+        - generic [ref=e7]:
+          - button "Toggle light/dark mode" [ref=e8]:
+            - img [ref=e9]
+          - button "..." [ref=e16]:
+            - generic [ref=e17]: ...
+            - img [ref=e18]
+      - navigation [ref=e22]:
+        - link "COURSES" [ref=e23] [cursor=pointer]:
+          - /url: /teacher
+        - link "ANALYTICS" [ref=e24] [cursor=pointer]:
+          - /url: /teacher/analytics
+          - text: ANALYTICS
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e30]: "001"
+          - generic [ref=e32]: ANALYTICS
+        - generic [ref=e34]:
+          - heading "ANALYTICS OVERVIEW" [level=1] [ref=e35]
+          - paragraph [ref=e36]: Performance across all your courses
+        - paragraph [ref=e37]: LOADING ANALYTICS...
+    - generic [ref=e40]:
+      - generic [ref=e41]: SYS.ACT
+      - generic [ref=e42]: V1.0.0
+  - button "Open Next.js Dev Tools" [ref=e53] [cursor=pointer]:
+    - img [ref=e54]

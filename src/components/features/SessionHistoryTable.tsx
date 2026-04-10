@@ -42,53 +42,87 @@ export default function SessionHistoryTable({ results, isDark = true }: SessionH
           <rect x="9" y="3" width="6" height="4" rx="1" />
           <path d="M9 14l2 2 4-4" />
         </svg>
-        <p className={`font-mono text-sm ${t.textMid}`}>NO SESSIONS COMPLETED YET</p>
+        <p className={`font-mono text-sm ${t.textMid} text-center`}>NO SESSIONS COMPLETED YET</p>
       </BrutalistCard>
     );
   }
 
   return (
-    <BrutalistCard isDark={isDark} className="!p-0 overflow-x-auto">
-      <table className="w-full text-left">
-        <thead>
-          <tr className={`border-b ${t.border}`}>
-            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
-              SESSION
-            </th>
-            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
-              SCORE
-            </th>
-            <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
-              DATE
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {results.map((result, i) => (
-            <tr
-              key={result.id}
-              className={`${i < results.length - 1 ? `border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}` : ''} transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-black/[0.02]'}`}
-            >
-              <td className="px-5 py-4">
-                <div className={`font-mono text-sm font-medium ${t.text}`}>
+    <>
+      {/* Mobile: stacked card list */}
+      <div className="sm:hidden space-y-3">
+        {results.map((result) => (
+          <div
+            key={result.id}
+            className={`relative border ${t.border} ${t.cardBg} p-4`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className={`font-mono text-sm font-medium ${t.text} break-words`}>
                   {result.session.title ?? "Untitled Session"}
                 </div>
-                <div className={`font-mono text-xs ${t.textDim}`}>
+                <div className={`mt-0.5 font-mono text-xs ${t.textDim}`}>
                   {result.course.course_code}
                 </div>
-              </td>
-              <td className="px-5 py-4">
-                <BrutalistBadge isDark={isDark} variant={scoreBadgeVariant(result.score, result.total_questions)}>
-                  {result.score}/{result.total_questions}
-                </BrutalistBadge>
-              </td>
-              <td className={`px-5 py-4 font-mono text-sm ${t.textMid}`}>
-                {formatDate(result.completed_at)}
-              </td>
+              </div>
+              <BrutalistBadge
+                isDark={isDark}
+                variant={scoreBadgeVariant(result.score, result.total_questions)}
+                className="flex-shrink-0"
+              >
+                {result.score}/{result.total_questions}
+              </BrutalistBadge>
+            </div>
+            <div className={`mt-3 pt-3 border-t ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'} font-mono text-xs ${t.textMid}`}>
+              {formatDate(result.completed_at)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <BrutalistCard isDark={isDark} className="hidden sm:block !p-0 overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className={`border-b ${t.border}`}>
+              <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+                SESSION
+              </th>
+              <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+                SCORE
+              </th>
+              <th className={`px-5 py-3 font-mono text-[10px] font-medium ${t.textDim} uppercase tracking-[0.25em]`}>
+                DATE
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </BrutalistCard>
+          </thead>
+          <tbody>
+            {results.map((result, i) => (
+              <tr
+                key={result.id}
+                className={`${i < results.length - 1 ? `border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}` : ''} transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-black/[0.02]'}`}
+              >
+                <td className="px-5 py-4">
+                  <div className={`font-mono text-sm font-medium ${t.text}`}>
+                    {result.session.title ?? "Untitled Session"}
+                  </div>
+                  <div className={`font-mono text-xs ${t.textDim}`}>
+                    {result.course.course_code}
+                  </div>
+                </td>
+                <td className="px-5 py-4">
+                  <BrutalistBadge isDark={isDark} variant={scoreBadgeVariant(result.score, result.total_questions)}>
+                    {result.score}/{result.total_questions}
+                  </BrutalistBadge>
+                </td>
+                <td className={`px-5 py-4 font-mono text-sm ${t.textMid}`}>
+                  {formatDate(result.completed_at)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </BrutalistCard>
+    </>
   );
 }

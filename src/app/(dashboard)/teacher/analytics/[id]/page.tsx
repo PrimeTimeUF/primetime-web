@@ -61,14 +61,14 @@ export default function TeacherCourseAnalyticsPage() {
         <>
           <SectionLabel num="001" label="COURSE ANALYTICS" isDark={isDark} />
 
-          <div className="flex items-center gap-3 mb-8">
-            <h1 className={`font-mono text-2xl font-bold tracking-wider ${t.text} transition-colors duration-500`}>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+            <h1 className={`font-mono text-xl sm:text-2xl font-bold tracking-wider ${t.text} transition-colors duration-500 break-words`}>
               {detail.title.toUpperCase()}
             </h1>
             <BrutalistBadge isDark={isDark} variant="info">{detail.course_code}</BrutalistBadge>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <TeacherStatsBar
               isDark={isDark}
               totalStudents={detail.enrolled_students}
@@ -79,7 +79,7 @@ export default function TeacherCourseAnalyticsPage() {
           </div>
 
           <SectionLabel num="002" label="SESSION BREAKDOWN" isDark={isDark} />
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <TeacherSessionStatsTable
               isDark={isDark}
               sessions={detail.sessions}

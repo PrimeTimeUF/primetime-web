@@ -71,7 +71,7 @@ const ModalContent = forwardRef<HTMLDivElement, ModalContentProps>(
           {/* Panel */}
           <Dialog.Content
             ref={ref}
-            className={`fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 border ${t.border} ${isDark ? "bg-black" : "bg-white"} p-6 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 ${sizeStyles[size]} ${className}`}
+            className={`fixed left-1/2 top-1/2 z-50 w-[calc(100%-1.5rem)] sm:w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] overflow-y-auto -translate-x-1/2 -translate-y-1/2 border ${t.border} ${isDark ? "bg-black" : "bg-white"} p-5 sm:p-6 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 ${sizeStyles[size]} ${className}`}
             {...props}
           >
             <CornerAccents isDark={isDark} />
@@ -167,7 +167,7 @@ function ModalFooter({ children, className = "", ...props }: Readonly<ModalFoote
   const t = themeTokens(isDark);
   return (
     <div
-      className={`mt-6 pt-4 border-t ${t.border} flex items-center justify-end gap-3 ${className}`}
+      className={`mt-6 pt-4 border-t ${t.border} flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 ${className}`}
       {...props}
     >
       {children}

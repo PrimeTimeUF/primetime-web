@@ -147,7 +147,7 @@ export default function AssignSessionModal({
 
         <Modal.Footer>
           <Modal.Close>
-            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading}>
+            <BrutalistButton isDark={isDark} variant="secondary" disabled={isLoading} className="w-full sm:w-auto">
               Cancel
             </BrutalistButton>
           </Modal.Close>
@@ -160,6 +160,7 @@ export default function AssignSessionModal({
               !dueDate ||
               availableSessions.length === 0
             }
+            className="w-full sm:w-auto"
           >
             {isLoading ? "ASSIGNING..." : "ASSIGN SESSION"}
           </BrutalistButton>

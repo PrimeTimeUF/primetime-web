@@ -1,0 +1,43 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "PRIMETIME" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e8]: EST. 2025
+      - button "Toggle light/dark mode" [ref=e10]:
+        - img [ref=e11]
+    - generic [ref=e22]:
+      - generic [ref=e27]:
+        - generic [ref=e29]: "001"
+        - generic [ref=e31]: AUTHENTICATION
+      - heading "SIGN IN" [level=1] [ref=e33]
+      - paragraph [ref=e34]: Prepare. Prime. Perform.
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]: EMAIL
+          - textbox "user@university.edu" [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40]: PASSWORD
+          - textbox "••••••••" [ref=e41]
+        - generic [ref=e42]:
+          - generic [ref=e43]: I AM A...
+          - generic [ref=e44]:
+            - button "STUDENT" [ref=e45]:
+              - img [ref=e48]
+              - generic [ref=e57]: STUDENT
+            - button "TEACHER" [ref=e59]:
+              - img [ref=e62]
+              - generic [ref=e68]: TEACHER
+        - button "LOG IN" [ref=e70]: LOG IN
+        - link "FORGOT PASSWORD?" [ref=e73] [cursor=pointer]:
+          - /url: /forgot-password
+      - paragraph [ref=e76]:
+        - text: NO ACCOUNT?
+        - link "REGISTER" [ref=e77] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=e80]:
+      - generic [ref=e81]: SYS.ACT
+      - generic [ref=e82]: V1.0.0
+  - button "Open Next.js Dev Tools" [ref=e93] [cursor=pointer]:
+    - img [ref=e94]

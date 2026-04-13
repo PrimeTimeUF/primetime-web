@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { createAdminClient } from "@/lib/supabase-admin";
 import { extractTextFromPdf } from "@/lib/pdf";
 import { generatePrimingSession } from "@/lib/anthropic";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 
 export const maxDuration = 120;
 
@@ -108,13 +108,15 @@ export async function POST(
 
     const sessionId = session.id;
 
-    // Run generation in the background (fire-and-forget)
-    runGeneration(
-      admin,
-      sessionId,
-      materials.map((m) => ({ fileUrl: m.file_url, fileName: m.file_name })),
-      lectureName,
-      duration as 10 | 15 | 30
+    // Run generation after response is sent — Vercel keeps the function alive via after()
+    after(
+      runGeneration(
+        admin,
+        sessionId,
+        materials.map((m) => ({ fileUrl: m.file_url, fileName: m.file_name })),
+        lectureName,
+        duration as 10 | 15 | 30
+      )
     );
 
     return NextResponse.json(

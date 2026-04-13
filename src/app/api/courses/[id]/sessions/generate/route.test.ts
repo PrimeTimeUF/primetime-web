@@ -8,6 +8,20 @@ const mockDownload = vi.fn();
 const mockExtractTextFromPdf = vi.fn();
 const mockGeneratePrimingSession = vi.fn();
 
+vi.mock("next/server", async () => {
+  const actual = await vi.importActual<typeof import("next/server")>(
+    "next/server"
+  );
+  return {
+    ...actual,
+    after: (promise: unknown) => {
+      if (promise && typeof (promise as Promise<unknown>).then === "function") {
+        (promise as Promise<unknown>).catch(() => {});
+      }
+    },
+  };
+});
+
 vi.mock("@/utils/supabase/server", () => ({
   createClient: vi.fn(() => ({
     auth: { getUser: mockGetUser },

@@ -5,7 +5,7 @@ import {
   synthesizeSpeech,
   uploadAudioToStorage,
 } from "@/lib/tts";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import type { PrimingSessionContent } from "@/lib/types/priming-session";
 
 export const maxDuration = 120;
@@ -77,11 +77,13 @@ export async function POST(
       .update({ audio_status: "generating" })
       .eq("id", sessionId);
 
-    // --- Run TTS in background (fire-and-forget) ---
-    runTtsGeneration(
-      admin,
-      sessionId,
-      session.content as PrimingSessionContent
+    // --- Run TTS after response — Vercel keeps the function alive via after() ---
+    after(
+      runTtsGeneration(
+        admin,
+        sessionId,
+        session.content as PrimingSessionContent
+      )
     );
 
     return NextResponse.json(

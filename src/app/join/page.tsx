@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -25,21 +25,11 @@ export default function JoinPage() {
 function JoinPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<JoinStatus>("joining");
-  const [message, setMessage] = useState("Ready to join this course.");
   const invitationCode = useMemo(() => searchParams.get("code")?.trim().toUpperCase() ?? "", [searchParams]);
+  const hasCode = invitationCode.length > 0;
+  const [status, setStatus] = useState<JoinStatus>(hasCode ? "joining" : "error");
+  const [message, setMessage] = useState(hasCode ? "Ready to join this course." : "Missing invitation code in QR link.");
   const isSubmitting = status === "joining" && message === "Joining course...";
-
-  useEffect(() => {
-    if (!invitationCode) {
-      setStatus("error");
-      setMessage("Missing invitation code in QR link.");
-      return;
-    }
-
-    setStatus("joining");
-    setMessage("Ready to join this course.");
-  }, [invitationCode]);
 
   async function handleJoin() {
     if (!invitationCode) {
@@ -110,16 +100,16 @@ function JoinPageContent() {
             <button
               type="button"
               onClick={handleJoin}
-              disabled={status === "success"}
+              disabled={status === "success" || isSubmitting}
               className="border border-white px-5 py-2 font-mono text-xs tracking-wider transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "JOINING..." : "JOIN COURSE"}
             </button>
             <Link
-              href={status === "success" ? "/student" : "/login"}
+              href={status === "success" ? "/student" : `/login?redirect=${encodeURIComponent(`/join?code=${invitationCode}`)}`}
               className="border border-white/30 px-5 py-2 font-mono text-xs tracking-wider text-white/70 transition-colors hover:border-white hover:text-white"
             >
-              {status === "success" ? "GO TO DASHBOARD" : "GO TO LOGIN"}
+              {status === "success" ? "GO TO DASHBOARD" : "LOG IN FIRST"}
             </Link>
             {status === "error" && (
               <Link

@@ -5,11 +5,8 @@ import { AuthThemeContext } from "../auth-theme-context";
 
 const mockPush = vi.fn();
 
-const mockGet = vi.fn().mockReturnValue(null);
-
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
-  useSearchParams: () => ({ get: mockGet }),
 }));
 
 global.fetch = vi.fn();

@@ -1,25 +1,15 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthTheme } from "../auth-theme-context";
 import { StudentIcon, TeacherIcon } from "@/components/ui/role-icons";
 
 type Role = "student" | "teacher";
 
 export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="w-full max-w-[460px] h-[500px]" />}>
-      <LoginPageContent />
-    </Suspense>
-  );
-}
-
-function LoginPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect");
   const { isDark } = useAuthTheme();
   const [role, setRole] = useState<Role>("student");
   const [email, setEmail] = useState("");
@@ -63,9 +53,7 @@ function LoginPageContent() {
         return;
       }
 
-      if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
-        router.push(redirectTo);
-      } else if (data.user.role === "teacher") {
+      if (data.user.role === "teacher") {
         router.push("/teacher");
       } else {
         router.push("/student");

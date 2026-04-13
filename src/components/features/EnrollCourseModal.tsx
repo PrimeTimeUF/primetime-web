@@ -76,7 +76,7 @@ export default function EnrollCourseModal({
       <Modal.Content size="sm" isDark={isDark}>
         <Modal.Title>Enroll in Course</Modal.Title>
         <Modal.Description>
-          Enter the invitation code from your teacher to join a course.
+          Enter the invitation code from your teacher, or use their QR join link.
         </Modal.Description>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">

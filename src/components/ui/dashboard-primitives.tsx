@@ -204,7 +204,7 @@ export const BrutalistInput = forwardRef<HTMLInputElement, BrutalistInputProps>(
         <input
           id={id}
           ref={ref}
-          className={`w-full border ${error ? errorBorder : t.border} bg-transparent ${t.text} font-mono text-sm px-4 py-3 placeholder:${isDark ? 'text-white/20' : 'text-black/25'} focus:outline-none focus:border-current transition-colors duration-200 ${className}`}
+          className={`w-full border ${error ? errorBorder : t.border} bg-transparent ${t.text} font-mono text-base sm:text-sm px-4 py-3 placeholder:${isDark ? 'text-white/20' : 'text-black/25'} focus:outline-none focus:border-current transition-colors duration-200 ${className}`}
           {...rest}
         />
         {error && (
@@ -232,7 +232,7 @@ export function BrutalistTab({ isDark, label, count, active, onClick }: Readonly
   return (
     <button
       onClick={onClick}
-      className={`relative font-mono text-xs tracking-[0.2em] uppercase px-4 py-3 transition-colors duration-200 ${active ? t.text : t.textMid} ${active ? '' : isDark ? 'hover:text-white/80' : 'hover:text-black/70'}`}
+      className={`relative flex-shrink-0 whitespace-nowrap font-mono text-xs tracking-wider sm:tracking-[0.2em] uppercase px-3 sm:px-4 py-3 transition-colors duration-200 ${active ? t.text : t.textMid} ${active ? '' : isDark ? 'hover:text-white/80' : 'hover:text-black/70'}`}
     >
       <span className="flex items-center gap-2">
         {label}

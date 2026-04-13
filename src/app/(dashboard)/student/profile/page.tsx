@@ -228,11 +228,11 @@ export default function StudentProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[800px]">
+    <div className="mx-auto max-w-[800px] px-4 sm:px-6">
       {/* Back link */}
       <button
         onClick={() => router.push("/student")}
-        className={`mb-6 inline-flex items-center gap-2 font-mono text-xs tracking-wider ${t.textMid} transition-colors ${isDark ? 'hover:text-white' : 'hover:text-black'}`}
+        className={`mb-4 sm:mb-6 inline-flex items-center gap-2 font-mono text-xs tracking-wider ${t.textMid} transition-colors ${isDark ? 'hover:text-white' : 'hover:text-black'}`}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -251,8 +251,8 @@ export default function StudentProfilePage() {
           <label className={`block font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase mb-3`}>
             PROFILE PICTURE
           </label>
-          <div className="flex items-center gap-4">
-            <div className={`w-20 h-20 border ${t.borderDim} ${t.text} flex items-center justify-center font-mono text-2xl font-bold overflow-hidden`}>
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4">
+            <div className={`w-20 h-20 sm:w-20 sm:h-20 border ${t.borderDim} ${t.text} flex items-center justify-center font-mono text-2xl font-bold overflow-hidden`}>
               {profileImagePreview ? (
                 <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
               ) : (
@@ -328,6 +328,7 @@ export default function StudentProfilePage() {
             onClick={handleSaveProfile}
             isLoading={isSaving}
             disabled={isSaving}
+            className="w-full sm:w-auto"
           >
             SAVE CHANGES
           </BrutalistButton>
@@ -382,6 +383,7 @@ export default function StudentProfilePage() {
             onClick={handleChangePassword}
             isLoading={isChangingPassword}
             disabled={isChangingPassword}
+            className="w-full sm:w-auto"
           >
             CHANGE PASSWORD
           </BrutalistButton>
@@ -393,11 +395,11 @@ export default function StudentProfilePage() {
         <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-6`}>ACCOUNT INFORMATION</h2>
 
         <div className="space-y-4">
-          <div className={`flex justify-between py-3 border-b ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
+          <div className={`flex flex-col sm:flex-row sm:justify-between py-3 border-b gap-2 sm:gap-0 ${isDark ? 'border-white/[0.06]' : 'border-black/[0.06]'}`}>
             <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>ACCOUNT TYPE</span>
             <span className={`font-mono text-xs font-bold ${t.text} tracking-wider uppercase`}>{profile.role}</span>
           </div>
-          <div className="flex justify-between py-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between py-3 gap-2 sm:gap-0">
             <span className={`font-mono text-xs ${t.textDim} tracking-wider`}>MEMBER SINCE</span>
             <span className={`font-mono text-xs font-bold ${t.text} tracking-wider`}>{formatDate(profile.created_at)}</span>
           </div>

@@ -1,0 +1,92 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "PRIMETIME" [ref=e6] [cursor=pointer]:
+          - /url: /teacher
+        - generic [ref=e7]:
+          - button "Toggle light/dark mode" [ref=e8]:
+            - img [ref=e9]
+          - button "AY" [ref=e57]:
+            - generic [ref=e17]: AY
+            - img [ref=e18]
+      - navigation [ref=e22]:
+        - link "COURSES" [ref=e23] [cursor=pointer]:
+          - /url: /teacher
+        - link "ANALYTICS" [ref=e24] [cursor=pointer]:
+          - /url: /teacher/analytics
+          - text: ANALYTICS
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e30]: "001"
+          - generic [ref=e32]: ANALYTICS
+        - generic [ref=e34]:
+          - heading "ANALYTICS OVERVIEW" [level=1] [ref=e35]
+          - paragraph [ref=e36]: Performance across all your courses
+        - generic [ref=e59]:
+          - generic [ref=e65]:
+            - generic [ref=e66]: TOTAL STUDENTS
+            - generic [ref=e67]: "2"
+          - generic [ref=e73]:
+            - generic [ref=e74]: SESSIONS ASSIGNED
+            - generic [ref=e75]: "1"
+          - generic [ref=e81]:
+            - generic [ref=e82]: AVG SCORE
+            - generic [ref=e83]: 40%
+          - generic [ref=e89]:
+            - generic [ref=e90]: COMPLETION RATE
+            - generic [ref=e91]: 50%
+        - generic [ref=e92]:
+          - generic [ref=e94]: "002"
+          - generic [ref=e96]: COURSES
+        - generic [ref=e98]:
+          - link "INTRO TO MACHINE LEARNING CIS4930 STUDENTS 2 SESSIONS 1 AVG SCORE 40% COMPLETION 50%" [ref=e99] [cursor=pointer]:
+            - /url: /teacher/analytics/b2699e79-5884-4a65-8e73-4e701698f08e
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - heading "INTRO TO MACHINE LEARNING" [level=3] [ref=e107]
+                - generic [ref=e108]: CIS4930
+              - generic [ref=e109]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]: STUDENTS
+                  - generic [ref=e112]: "2"
+                - generic [ref=e113]:
+                  - generic [ref=e114]: SESSIONS
+                  - generic [ref=e115]: "1"
+                - generic [ref=e116]:
+                  - generic [ref=e117]: AVG SCORE
+                  - generic [ref=e118]: 40%
+                - generic [ref=e119]:
+                  - generic [ref=e120]: COMPLETION
+                  - generic [ref=e121]: 50%
+          - link "INTRO TO VR CIS4930 STUDENTS 0 SESSIONS 0 AVG SCORE 0% COMPLETION 0%" [ref=e122] [cursor=pointer]:
+            - /url: /teacher/analytics/ebb49f6a-7988-409d-8026-f3e989d3ba8a
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - heading "INTRO TO VR" [level=3] [ref=e130]
+                - generic [ref=e131]: CIS4930
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]: STUDENTS
+                  - generic [ref=e135]: "0"
+                - generic [ref=e136]:
+                  - generic [ref=e137]: SESSIONS
+                  - generic [ref=e138]: "0"
+                - generic [ref=e139]:
+                  - generic [ref=e140]: AVG SCORE
+                  - generic [ref=e141]: 0%
+                - generic [ref=e142]:
+                  - generic [ref=e143]: COMPLETION
+                  - generic [ref=e144]: 0%
+    - generic [ref=e40]:
+      - generic [ref=e41]: SYS.ACT
+      - generic [ref=e42]: V1.0.0
+  - button "Open Next.js Dev Tools" [ref=e145] [cursor=pointer]:
+    - generic [ref=e148]:
+      - text: Compiling
+      - generic [ref=e149]:
+        - generic [ref=e150]: .
+        - generic [ref=e151]: .
+        - generic [ref=e152]: .
+  - alert [ref=e153]

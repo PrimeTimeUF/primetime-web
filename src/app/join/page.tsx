@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type JoinStatus = "joining" | "success" | "error";
 
 export default function JoinPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-white">
+          <div className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6">
+            <p className="font-mono text-sm text-white/40 tracking-wider">LOADING...</p>
+          </div>
+        </div>
+      }
+    >
+      <JoinPageContent />
+    </Suspense>
+  );
+}
+
+function JoinPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<JoinStatus>("joining");

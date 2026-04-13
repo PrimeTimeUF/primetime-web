@@ -54,6 +54,19 @@ const mockProgress = {
   average_score: 80,
 };
 
+const mockPerformance = {
+  course_id: "course-1",
+  title: "Biology 101",
+  course_code: "BIO101",
+  semester: "Fall 2025",
+  sessions_assigned: 2,
+  sessions_completed: 1,
+  completion_rate_percentage: 50,
+  avg_score_percentage: 80,
+  best_score_percentage: 80,
+  sessions: [],
+};
+
 function setupDefaultMocks() {
   // Course fetch
   vi.mocked(global.fetch).mockResolvedValueOnce({
@@ -64,6 +77,11 @@ function setupDefaultMocks() {
   vi.mocked(global.fetch).mockResolvedValueOnce({
     ok: true,
     json: async () => ({ assignments: mockAssignments, progress: mockProgress }),
+  } as Response);
+  // Performance fetch
+  vi.mocked(global.fetch).mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ detail: mockPerformance }),
   } as Response);
 }
 
@@ -86,6 +104,10 @@ describe("StudentCourseDetailPage", () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ assignments: [] }),
+    } as Response);
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ detail: mockPerformance }),
     } as Response);
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
@@ -193,6 +215,10 @@ describe("StudentCourseDetailPage", () => {
         progress: mockProgress,
       }),
     } as Response);
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ detail: mockPerformance }),
+    } as Response);
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
       expect(screen.getByText("Session 2")).toBeInTheDocument();
@@ -202,23 +228,24 @@ describe("StudentCourseDetailPage", () => {
     expect(screen.getByText("NO UPCOMING SESSIONS")).toBeInTheDocument();
   });
 
-  it("renders progress sidebar", async () => {
+  it("renders performance section with stats bar", async () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
-      expect(screen.getByText("YOUR PROGRESS")).toBeInTheDocument();
+      expect(screen.getByText("PERFORMANCE")).toBeInTheDocument();
     });
-    expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("1/2")).toBeInTheDocument();
-    expect(screen.getByText("80%")).toBeInTheDocument();
+    expect(screen.getAllByText("50%").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("80%").length).toBeGreaterThan(0);
   });
 
-  it("fetches both course and assignments", async () => {
+  it("fetches course, assignments, and performance", async () => {
     setupDefaultMocks();
     render(<StudentCourseDetailPage />);
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith("/api/courses/course-1");
       expect(global.fetch).toHaveBeenCalledWith("/api/courses/course-1/assignments");
+      expect(global.fetch).toHaveBeenCalledWith("/api/student/performance/course-1");
     });
   });
 });

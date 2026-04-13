@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { EnrollCourseModal, AnalyticsStatsBar, SessionHistoryTable } from "@/components";
+import { EnrollCourseModal } from "@/components";
 import { useDashboardTheme } from "../teacher/dashboard-theme-context";
 import { SectionLabel, BrutalistCard, BrutalistButton, themeTokens } from "@/components/ui/dashboard-primitives";
 import { createClient } from "@/utils/supabase/client";
-import type { StudentAnalytics } from "@/lib/types/student-analytics";
 
 interface UserData {
   id: string;
@@ -39,8 +38,6 @@ export default function StudentDashboardPage() {
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [analytics, setAnalytics] = useState<StudentAnalytics | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchEnrollments = useCallback(async () => {
@@ -52,21 +49,6 @@ export default function StudentDashboardPage() {
       }
     } catch (error) {
       console.error("Failed to fetch enrollments:", error);
-    }
-  }, []);
-
-  const fetchAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true);
-    try {
-      const res = await fetch("/api/student/results");
-      if (res.ok) {
-        const data: StudentAnalytics = await res.json();
-        setAnalytics(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch analytics:", error);
-    } finally {
-      setAnalyticsLoading(false);
     }
   }, []);
 
@@ -101,8 +83,7 @@ export default function StudentDashboardPage() {
 
     fetchUserData();
     fetchEnrollments();
-    fetchAnalytics();
-  }, [fetchEnrollments, fetchAnalytics, router]);
+  }, [fetchEnrollments, router]);
 
   const getFirstName = (name: string) => {
     if (!name) return "there";
@@ -158,28 +139,6 @@ export default function StudentDashboardPage() {
         </BrutalistButton>
       </div>
 
-      {/* Performance Section */}
-      {hasEnrollments && (
-        <section className="mb-6 sm:mb-8">
-          <SectionLabel num="002" label="PERFORMANCE" isDark={isDark} />
-          {analyticsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <BrutalistCard key={i} isDark={isDark}>
-                  <div className={`h-4 w-24 ${isDark ? 'bg-white/10' : 'bg-black/10'} mb-2`} />
-                  <div className={`h-7 w-16 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
-                </BrutalistCard>
-              ))}
-            </div>
-          ) : analytics ? (
-            <div className="space-y-4">
-              <AnalyticsStatsBar summary={analytics.summary} isDark={isDark} />
-              <SessionHistoryTable results={analytics.results} isDark={isDark} />
-            </div>
-          ) : null}
-        </section>
-      )}
-
       {/* Empty State */}
       {!hasEnrollments && (
         <BrutalistCard isDark={isDark} className="flex flex-col items-center justify-center py-12 px-4 sm:py-16 sm:px-6">
@@ -220,7 +179,7 @@ export default function StudentDashboardPage() {
       {/* Enrolled Courses */}
       {hasEnrollments && (
         <section>
-          <SectionLabel num="003" label="COURSES" isDark={isDark} />
+          <SectionLabel num="002" label="COURSES" isDark={isDark} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
             {enrollments.map((enrollment) => (

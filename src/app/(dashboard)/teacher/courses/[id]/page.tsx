@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 import { CreateSessionModal, AssignSessionModal } from "@/components";
 import type { PrimingSessionListItem } from "@/lib/types/priming-session";
 import type { SessionAssignmentWithSession } from "@/lib/types/session-assignment";
@@ -380,6 +381,8 @@ interface StudentsTabProps {
 function StudentsTab({ courseId, invitationCode, isDark }: Readonly<StudentsTabProps>) {
   const t = themeTokens(isDark);
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
   const [students, setStudents] = useState<EnrolledStudent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -391,9 +394,21 @@ function StudentsTab({ courseId, invitationCode, isDark }: Readonly<StudentsTabP
   }, [courseId]);
 
   useEffect(() => { fetchStudents(); }, [fetchStudents]);
+  useEffect(() => { setOrigin(window.location.origin); }, []);
 
   const handleCopy = async () => {
     try { await navigator.clipboard.writeText(invitationCode); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* fallback */ }
+  };
+  const joinUrl = origin ? `${origin}/join?code=${encodeURIComponent(invitationCode)}` : "";
+  const handleCopyJoinLink = async () => {
+    if (!joinUrl) return;
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      /* fallback */
+    }
   };
 
   const getInitials = (name: string) => {
@@ -413,7 +428,7 @@ function StudentsTab({ courseId, invitationCode, isDark }: Readonly<StudentsTabP
           <p className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>INVITATION CODE</p>
           <p className={`mt-1 font-mono text-lg font-bold tracking-widest ${t.text}`}>{invitationCode}</p>
         </div>
-        <button onClick={handleCopy} title="Copy to clipboard"
+        <button onClick={handleCopy} title="Copy to clipboard" aria-label="Copy invitation code"
           className={`flex h-9 w-9 items-center justify-center border transition-colors ${copied ? (isDark ? 'border-green-500/40 text-green-400' : 'border-green-600/50 text-green-700') : `${t.border} ${t.textMid} ${isDark ? 'hover:text-white hover:border-white/30' : 'hover:text-black hover:border-black/25'}`}`}>
           {copied ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -422,6 +437,40 @@ function StudentsTab({ courseId, invitationCode, isDark }: Readonly<StudentsTabP
           )}
         </button>
         <BrutalistButton isDark={isDark} variant="secondary" size="sm" disabled>GENERATE NEW</BrutalistButton>
+      </BrutalistCard>
+      <BrutalistCard isDark={isDark} className="mb-8">
+        <p className={`font-mono text-[10px] ${t.textDim} tracking-[0.25em] uppercase`}>STUDENT JOIN QR</p>
+        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div className={`inline-flex w-fit border ${t.border} p-3`}>
+            {joinUrl ? (
+              <QRCodeSVG
+                value={joinUrl}
+                size={152}
+                bgColor={isDark ? "#000000" : "#ffffff"}
+                fgColor={isDark ? "#ffffff" : "#000000"}
+                marginSize={1}
+              />
+            ) : (
+              <div className={`flex h-[152px] w-[152px] items-center justify-center font-mono text-[10px] ${t.textDim}`}>
+                LOADING...
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className={`font-mono text-[10px] ${t.textDim} tracking-wider`}>JOIN URL</p>
+            <p className={`mt-1 break-all font-mono text-xs ${t.text}`}>
+              {joinUrl || `/join?code=${invitationCode}`}
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <BrutalistButton isDark={isDark} size="sm" onClick={handleCopyJoinLink} aria-label="Copy join link">
+                {linkCopied ? "COPIED LINK" : "COPY JOIN LINK"}
+              </BrutalistButton>
+              <p className={`font-mono text-[10px] ${t.textDim}`}>
+                Students can scan, then tap JOIN COURSE.
+              </p>
+            </div>
+          </div>
+        </div>
       </BrutalistCard>
 
       {/* Students list */}

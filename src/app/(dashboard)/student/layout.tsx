@@ -88,7 +88,6 @@ function StudentDashboardHeader({ isDark, onToggle }: Readonly<DashboardHeaderPr
 
 const NAV_ITEMS = [
   { label: "COURSES", href: "/student" },
-  { label: "PERFORMANCE", href: "/student/performance" },
 ] as const;
 
 function StudentSidebarNav({ isDark }: Readonly<{ isDark: boolean }>) {

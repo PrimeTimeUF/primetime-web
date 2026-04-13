@@ -5,8 +5,10 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useDashboardTheme } from "../../../teacher/dashboard-theme-context";
 import { SectionLabel, BrutalistCard, BrutalistButton, BrutalistBadge, BrutalistTab, themeTokens } from "@/components/ui/dashboard-primitives";
-import type { StudentCourseDetail, StudentCourseProgress } from "@/lib/types/student-course";
+import { StudentPerformanceStatsBar, StudentSessionPerformanceTable } from "@/components";
+import type { StudentCourseDetail } from "@/lib/types/student-course";
 import type { StudentAssignmentView } from "@/lib/types/session-assignment";
+import type { StudentCoursePerformanceDetail } from "@/lib/types/student-performance";
 
 type FilterKey = "all" | "upcoming" | "completed";
 
@@ -17,7 +19,7 @@ export default function StudentCourseDetailPage() {
 
   const [course, setCourse] = useState<StudentCourseDetail | null>(null);
   const [assignments, setAssignments] = useState<StudentAssignmentView[]>([]);
-  const [progress, setProgress] = useState<StudentCourseProgress | null>(null);
+  const [performance, setPerformance] = useState<StudentCoursePerformanceDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -43,20 +45,31 @@ export default function StudentCourseDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setAssignments(data.assignments || []);
-        setProgress(data.progress || null);
       }
     } catch (err) {
       console.error("Failed to fetch assignments:", err);
     }
   }, [id]);
 
+  const fetchPerformance = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/student/performance/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPerformance(data.detail || null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch performance:", err);
+    }
+  }, [id]);
+
   useEffect(() => {
     async function loadData() {
-      await Promise.all([fetchCourse(), fetchAssignments()]);
+      await Promise.all([fetchCourse(), fetchAssignments(), fetchPerformance()]);
       setIsLoading(false);
     }
     loadData();
-  }, [fetchCourse, fetchAssignments]);
+  }, [fetchCourse, fetchAssignments, fetchPerformance]);
 
   const filteredAssignments = assignments.filter((a) => {
     if (filter === "all") return true;
@@ -152,9 +165,7 @@ export default function StudentCourseDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-        {/* Main Column */}
-        <div className="min-w-0">
+      <div className="min-w-0">
           {/* Course Overview */}
           <BrutalistCard isDark={isDark} className="mb-6">
             <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-4`}>OVERVIEW</h2>
@@ -178,8 +189,25 @@ export default function StudentCourseDetailPage() {
             </div>
           </BrutalistCard>
 
+          {/* Performance */}
+          {performance && (
+            <section className="mb-6">
+              <SectionLabel num="003" label="PERFORMANCE" isDark={isDark} />
+              <div className="mb-6">
+                <StudentPerformanceStatsBar
+                  isDark={isDark}
+                  sessionsCompleted={performance.sessions_completed}
+                  sessionsAssigned={performance.sessions_assigned}
+                  avgScore={performance.avg_score_percentage}
+                  bestScore={performance.best_score_percentage}
+                />
+              </div>
+              <StudentSessionPerformanceTable isDark={isDark} sessions={performance.sessions} />
+            </section>
+          )}
+
           {/* Priming Sessions */}
-          <BrutalistCard isDark={isDark}>
+          <BrutalistCard isDark={isDark} className="mt-6">
             <div className="mb-6 flex items-center justify-between">
               <h2 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid}`}>PRIMING SESSIONS</h2>
             </div>
@@ -328,76 +356,6 @@ export default function StudentCourseDetailPage() {
               </div>
             )}
           </BrutalistCard>
-        </div>
-
-        {/* Sidebar */}
-        <aside className="lg:sticky lg:top-[120px] lg:h-fit space-y-6">
-          {/* Progress Card */}
-          <BrutalistCard isDark={isDark}>
-            <h3 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-5`}>YOUR PROGRESS</h3>
-
-            {progress ? (
-              <>
-                {/* Completion bar */}
-                <div className="mb-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className={`font-mono text-[10px] ${t.textDim} tracking-wider uppercase`}>COMPLETION</span>
-                    <span className={`font-mono text-xs font-bold ${t.text}`}>{progress.completion_percentage}%</span>
-                  </div>
-                  <div className={`h-1 ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
-                    <div
-                      className={`h-full ${isDark ? 'bg-white' : 'bg-black'} transition-all duration-500`}
-                      style={{ width: `${progress.completion_percentage}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Sessions bar */}
-                <div className="mb-5">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className={`font-mono text-[10px] ${t.textDim} tracking-wider uppercase`}>SESSIONS</span>
-                    <span className={`font-mono text-xs font-bold ${t.text}`}>{progress.completed_count}/{progress.total_assigned}</span>
-                  </div>
-                  <div className={`h-1 ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
-                    <div
-                      className={`h-full ${isDark ? 'bg-white' : 'bg-black'} transition-all duration-500`}
-                      style={{ width: progress.total_assigned > 0 ? `${(progress.completed_count / progress.total_assigned) * 100}%` : "0%" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className={`grid grid-cols-2 gap-4 border-t ${t.border} pt-5`}>
-                  <div className="text-center">
-                    <p className={`font-mono text-2xl font-bold ${t.text}`}>{progress.average_score}%</p>
-                    <p className={`font-mono text-[10px] ${t.textDim} tracking-[0.2em] uppercase`}>AVG SCORE</p>
-                  </div>
-                  <div className="text-center">
-                    <p className={`font-mono text-2xl font-bold ${t.text}`}>{progress.completed_count}</p>
-                    <p className={`font-mono text-[10px] ${t.textDim} tracking-[0.2em] uppercase`}>DONE</p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <p className={`font-mono text-sm ${t.textMid}`}>No progress data yet.</p>
-            )}
-          </BrutalistCard>
-
-          {/* Quick Links */}
-          <BrutalistCard isDark={isDark}>
-            <h3 className={`font-mono text-xs tracking-[0.3em] uppercase ${t.textMid} mb-4`}>QUICK LINKS</h3>
-            <Link
-              href="/student"
-              className={`flex items-center gap-3 border ${t.border} p-3 font-mono text-xs font-medium ${t.text} tracking-wider transition-all ${isDark ? 'hover:border-white/30' : 'hover:border-black/25'}`}
-            >
-              <span className={`flex h-8 w-8 items-center justify-center border ${t.border} font-mono text-[10px] ${t.textMid}`}>
-                &lt;-
-              </span>
-              <span className="flex-1">MY DASHBOARD</span>
-              <span className={`${t.textDim}`}>&rarr;</span>
-            </Link>
-          </BrutalistCard>
-        </aside>
       </div>
     </>
   );

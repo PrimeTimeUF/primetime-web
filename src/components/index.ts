@@ -13,3 +13,5 @@ export { default as AssignSessionModal } from "./features/AssignSessionModal";
 export { default as TeacherStatsBar } from "./features/TeacherStatsBar";
 export { default as TeacherSessionStatsTable } from "./features/TeacherSessionStatsTable";
 export { default as TeacherStudentStatsTable } from "./features/TeacherStudentStatsTable";
+export { default as StudentPerformanceStatsBar } from "./features/StudentPerformanceStatsBar";
+export { default as StudentSessionPerformanceTable } from "./features/StudentSessionPerformanceTable";

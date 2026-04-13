@@ -207,20 +207,10 @@ describe("StudentDashboardPage", () => {
         ok: true,
         json: async () => ({ enrollments: [] }),
       } as Response)
-      // Analytics fetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ summary: {}, results: [] }),
-      } as Response)
       // Refetched enrollments after onEnrolled
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ enrollments: [updatedEnrollment] }),
-      } as Response)
-      // Analytics refetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ summary: {}, results: [] }),
       } as Response);
 
     render(<StudentDashboardPage />);
